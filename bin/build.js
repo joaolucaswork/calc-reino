@@ -7,7 +7,10 @@ const BUILD_DIRECTORY = 'dist';
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Config entrypoint files
-const ENTRY_POINTS = ['src/index.ts'];
+const ENTRY_POINTS = [
+  'src/index.ts', // Main entry point with all functionality
+  'src/currency/index.ts', // Currency module standalone
+];
 
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
