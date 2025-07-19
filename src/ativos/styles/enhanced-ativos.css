@@ -1,0 +1,325 @@
+/**
+ * Enhanced Ativos Module Styles with GSAP FLIP Integration
+ * 
+ * Optimized for GSAP FLIP animations while maintaining Webflow compatibility
+ * Reduced CSS animations to let GSAP handle premium transitions
+ */
+
+/* Base sortable styles - minimal interference with FLIP */
+.ativos_main-list,
+.ativos_main_drop_area {
+  position: relative;
+  min-height: 50px;
+  /* Remove transitions - FLIP will handle them */
+  will-change: transform; /* Optimize for FLIP animations */
+}
+
+.ativos_main_drop_area {
+  width: 100%;
+  height: auto;
+  min-height: 100px;
+  display: flex;
+  flex-direction: row; /* Items lado a lado */
+  flex-wrap: wrap; /* Quebra linha quando não tem espaço */
+  gap: 12px; /* Espaço entre os itens */
+  padding: 16px;
+  align-items: flex-start; /* Alinha itens no topo */
+  align-content: flex-start; /* Alinha as linhas no topo */
+}
+
+/* Drag states - minimal styling, let GSAP handle animations */
+.ativos-ghost {
+  opacity: 0.4;
+  border: 2px dashed #daa521 !important;
+  border-radius: 8px;
+  /* Remove transform - FLIP handles positioning */
+}
+
+.ativos-chosen {
+  cursor: grabbing !important;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 2px solid #daa521;
+  border-radius: 8px;
+  /* Remove scale transform - FLIP handles it smoother */
+}
+
+.ativos-drag {
+  opacity: 0.8;
+  /* Remove transform - FLIP provides better rotation */
+}
+
+.ativos-fallback {
+  cursor: grabbing !important;
+  opacity: 0.8;
+  border: 2px dashed #daa521;
+  border-radius: 8px;
+}
+
+/* Individual item states - optimized for FLIP */
+.ativos_main-list .w-dyn-item {
+  cursor: grab;
+  position: relative;
+  user-select: none;
+  will-change: transform, opacity; /* Optimize for GSAP */
+  /* Remove transitions - FLIP provides smoother ones */
+}
+
+.ativos_main-list .w-dyn-item:hover {
+  /* Reduce hover effects - GSAP can handle better ones */
+  transform: translateY(-1px);
+  transition: transform 0.1s ease; /* Keep minimal hover only */
+}
+
+.ativos_main_drop_area .w-dyn-item {
+  cursor: default;
+  position: relative;
+  border-radius: 8px;
+  user-select: none;
+  will-change: transform, opacity;
+  /* Remove margin-bottom que quebrava o layout flex */
+  margin-bottom: 0;
+  /* Garante tamanho consistente com os itens da lista */
+  flex-shrink: 0; /* Não diminui o tamanho dos itens */
+  /* Define largura para manter consistência */
+  min-width: auto;
+  max-width: none;
+}
+
+/* Garante que itens tenham o mesmo comportamento na área de drop */
+.ativos_main_drop_area .w-dyn-item:hover {
+  opacity: 0.9;
+  transition: opacity 0.1s ease; /* Minimal hover feedback */
+}
+
+/* Clone and drag states */
+.ativos_main-list .w-dyn-item.ativos-dragging {
+  cursor: grabbing !important;
+  opacity: 0.8;
+  z-index: 1000;
+  /* Remove transform - GSAP handles drag feedback */
+}
+
+/* Drop area states */
+.drop_ativos_area-wrapper {
+  position: relative;
+  /* Remove transition - FLIP handles state changes */
+}
+
+/* Main drop area states */
+.ativos_main_drop_area.ativos-empty {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.ativos_main_drop_area.ativos-has-items {
+  border-color: rgba(218, 165, 33, 0.3);
+}
+
+/* Active sorting state - reduced to avoid conflicts with FLIP */
+body.ativos-sorting .drop_ativos_area-wrapper,
+body.ativos-sorting .ativos_main_drop_area {
+  border-color: #daa521;
+  /* Remove box-shadow animations - FLIP provides better feedback */
+}
+
+body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
+  /* Reduced opacity change - GSAP can handle this better */
+  opacity: 0.8;
+}
+
+/* Counter styles - enhanced for GSAP animations */
+.counter_ativos {
+  font-weight: 600;
+  color: #daa521;
+  will-change: transform; /* Optimize for GSAP counter animations */
+  /* Remove transitions - GSAP provides better counter updates */
+}
+
+/* Empty state - minimal styling */
+.ativos_main-list:empty::after,
+.ativos_main_drop_area:empty::after {
+  content: 'Arraste seus ativos aqui';
+  display: block;
+  text-align: center;
+  padding: 32px 16px;
+  color: rgba(0, 0, 0, 0.4);
+  font-style: italic;
+  border: 2px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.ativos_main-list.ativos-has-items:empty::after,
+.ativos_main_drop_area.ativos-has-items:empty::after {
+  display: none;
+}
+
+/* Drag handle optimization for GSAP */
+.ativos-handle {
+  cursor: grab;
+  opacity: 0.5;
+  transition: opacity 0.1s ease; /* Keep minimal transition */
+}
+
+.ativos-handle:hover {
+  opacity: 1;
+}
+
+.ativos-handle:active {
+  cursor: grabbing;
+}
+
+/* Icon visibility - let GSAP handle show/hide animations */
+.icon-draggable {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, visibility;
+  /* Remove transitions - GSAP provides smoother icon animations */
+}
+
+.ativos_main-list .w-dyn-item:hover .icon-draggable,
+.w-dyn-item.ativos-dragging .icon-draggable {
+  visibility: visible;
+  opacity: 1;
+}
+
+.ativos_main_drop_area .icon-draggable {
+  display: none !important;
+}
+
+/* Header elements */
+.drop_header_are-wrapper,
+.ativos_counter-wrapper,
+.ativos_clean-button {
+  pointer-events: auto;
+  cursor: default;
+  user-select: auto;
+}
+
+/* Clean button - optimized for GSAP hover animations */
+.ativos_clean-button {
+  cursor: pointer;
+  will-change: transform, opacity;
+  /* Remove transitions - can be enhanced with GSAP on hover */
+}
+
+/* FLIP animation classes - for GSAP to use */
+.flip-item {
+  will-change: transform, opacity;
+}
+
+.flip-item-entering {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.flip-item-exiting {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Mobile responsive - ajustado para o layout flex */
+@media (max-width: 767px) {
+  .ativos_main_drop_area {
+    gap: 8px; /* Gap menor no mobile */
+    padding: 12px; /* Padding menor */
+  }
+
+  .drop_ativos_area-wrapper {
+    padding-left: 16px;
+    padding-right: 16px;
+    min-height: 400px;
+  }
+
+  /* Reduce scale effects on mobile for better performance */
+  .ativos-chosen {
+    transform: scale(1.01); /* Menor escala no mobile */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .drop_ativos_area-wrapper {
+    padding-left: 24px;
+    padding-right: 24px;
+    min-height: 450px;
+  }
+}
+
+@media (min-width: 992px) {
+  .drop_ativos_area-wrapper {
+    min-height: 475px;
+  }
+
+  /* Enhanced hover effects can be handled by GSAP on desktop */
+  .w-dyn-item:hover {
+    transform: translateY(-2px);
+    /* GSAP can provide more sophisticated hover animations */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ativos-ghost {
+    border-color: #000 !important;
+  }
+
+  .ativos-chosen {
+    border-color: #000;
+  }
+}
+
+/* Reduced motion support - disable FLIP animations */
+@media (prefers-reduced-motion: reduce) {
+  .ativos_main-list,
+  .w-dyn-item,
+  .drop_ativos_area-wrapper,
+  .counter_ativos {
+    transition: none;
+  }
+
+  /* Add class to disable FLIP animations when user prefers reduced motion */
+  .flip-disabled * {
+    will-change: auto !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .w-dyn-item {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .ativos_main-list:empty::after,
+  .ativos_main_drop_area:empty::after {
+    color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Performance optimizations for FLIP */
+.ativos_main-list,
+.ativos_main_drop_area,
+.w-dyn-item {
+  /* Enable hardware acceleration for smoother FLIP animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Utility classes for GSAP animations */
+.gsap-animating {
+  pointer-events: none; /* Prevent interaction during animation */
+}
+
+.gsap-scale-enter {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.gsap-fade-enter {
+  opacity: 0;
+}
+
+.gsap-slide-enter {
+  transform: translateY(20px);
+  opacity: 0;
+}

@@ -21,10 +21,8 @@ export class AtivosManager {
   public static initialize(customOptions?: Partial<AtivosManagerOptions>): void {
     this.options = { ...DEFAULT_ATIVOS_OPTIONS, ...customOptions };
     this.initializeAllContainers();
-    this.setupDropAreaRedirection();
     this.setupEventListeners();
     this.setupCleanButton();
-    this.setupIconVisibility();
   }
 
   /**
@@ -74,7 +72,7 @@ export class AtivosManager {
         const isValidDrop =
           evt.to &&
           evt.from !== evt.to && // Item moved to different container
-          (evt.to.matches('.ativos_main_drop_area') || evt.to.matches('.drop_ativos_area-wrapper'));
+          evt.to.matches('.ativos_main_drop_area');
 
         if (isValidDrop && evt.item && evt.oldIndex !== undefined) {
           // Hide the original item only when successfully dropped
@@ -129,99 +127,6 @@ export class AtivosManager {
   }
 
   /**
-   * Setup drop area redirection
-   */
-  private static setupDropAreaRedirection(): void {
-    const dropAreas = document.querySelectorAll<HTMLElement>('.drop_ativos_area-wrapper');
-
-    dropAreas.forEach((dropArea) => {
-      // Make drop area sortable to accept items and redirect to main drop area
-      const sortable = new Sortable(dropArea, {
-        ...this.options.sortableConfig,
-        group: {
-          name: 'ativos',
-          pull: false, // Don't allow pulling from this area
-          put: true, // Allow dropping into this area
-        },
-        onAdd: (evt: Sortable.SortableEvent) => {
-          // When item is dropped here, move it to main drop area immediately
-          setTimeout(() => {
-            this.moveItemToMainDropArea(evt.item);
-          }, 0);
-        },
-      });
-
-      this.instances.set(dropArea, sortable);
-    });
-  }
-
-  /**
-   * Move item to main drop area
-   */
-  private static moveItemToMainDropArea(item: HTMLElement): void {
-    const mainDropArea = document.querySelector('.ativos_main_drop_area');
-
-    if (!mainDropArea || !item) {
-      return;
-    }
-
-    // Check if item is already in the main drop area
-    if (item.closest('.ativos_main_drop_area')) {
-      return;
-    }
-
-    // Temporarily disable sortable to prevent loops
-    const dropAreaWrapper = item.closest('.drop_ativos_area-wrapper');
-    let sortableInstance = null;
-    if (dropAreaWrapper) {
-      sortableInstance = this.instances.get(dropAreaWrapper as HTMLElement);
-      if (sortableInstance) {
-        sortableInstance.option('disabled', true);
-      }
-    }
-
-    // Remove from current location safely
-    if (item.parentElement) {
-      item.parentElement.removeChild(item);
-    }
-
-    // Add smooth transition
-    item.style.transition = 'all 0.3s ease';
-    item.style.opacity = '0';
-    item.style.transform = 'translateY(20px)';
-
-    mainDropArea.appendChild(item);
-
-    // Animate in
-    requestAnimationFrame(() => {
-      item.style.opacity = '1';
-      item.style.transform = 'translateY(0)';
-    });
-
-    // Clean up styles and re-enable sortable
-    setTimeout(() => {
-      item.style.transition = '';
-      item.style.opacity = '';
-      item.style.transform = '';
-
-      // Re-enable sortable
-      if (sortableInstance) {
-        sortableInstance.option('disabled', false);
-      }
-
-      // Update counter
-      AtivosCounter.updateCounter();
-
-      // Dispatch custom event
-      const event = new CustomEvent('ativosMovedToMain', {
-        detail: { item },
-        bubbles: true,
-      });
-      mainDropArea.dispatchEvent(event);
-    }, 350);
-  }
-
-  /**
    * Initialize sortable on a specific container
    */
   public static initializeSortable(container: HTMLElement): Sortable | null {
@@ -250,13 +155,6 @@ export class AtivosManager {
     // Add dragging class to item
     item.classList.add('ativos-dragging');
 
-    // Show icon during drag
-    const icon = item.querySelector('.icon-draggable') as HTMLElement;
-    if (icon) {
-      icon.style.visibility = 'visible';
-      icon.style.opacity = '1';
-    }
-
     // Add visual feedback to drop zones
     document.body.classList.add('ativos-sorting');
   }
@@ -269,13 +167,6 @@ export class AtivosManager {
 
     // Remove dragging class from item
     item.classList.remove('ativos-dragging');
-
-    // Hide icon after drag (unless hovering)
-    const icon = item.querySelector('.icon-draggable') as HTMLElement;
-    if (icon && !item.matches(':hover')) {
-      icon.style.visibility = 'hidden';
-      icon.style.opacity = '0';
-    }
 
     // Remove visual feedback from drop zones
     document.body.classList.remove('ativos-sorting');
@@ -458,38 +349,6 @@ export class AtivosManager {
   }
 
   /**
-   * Setup icon visibility controls
-   */
-  private static setupIconVisibility(): void {
-    // Handle icon visibility for draggable items
-    document.addEventListener('mouseover', (e) => {
-      const target = e.target as HTMLElement;
-      const draggableItem = target.closest('.w-dyn-item');
-
-      if (draggableItem && this.isItemInSourceContainer(draggableItem as HTMLElement)) {
-        const icon = draggableItem.querySelector('.icon-draggable') as HTMLElement;
-        if (icon) {
-          icon.style.visibility = 'visible';
-          icon.style.opacity = '1';
-        }
-      }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-      const target = e.target as HTMLElement;
-      const draggableItem = target.closest('.w-dyn-item');
-
-      if (draggableItem && !draggableItem.classList.contains('ativos-dragging')) {
-        const icon = draggableItem.querySelector('.icon-draggable') as HTMLElement;
-        if (icon) {
-          icon.style.visibility = 'hidden';
-          icon.style.opacity = '0';
-        }
-      }
-    });
-  }
-
-  /**
    * Check if item is in a source container
    */
   private static isItemInSourceContainer(item: HTMLElement): boolean {
@@ -500,32 +359,22 @@ export class AtivosManager {
    * Clean all items and return to original positions
    */
   public static cleanAllItems(): void {
-    // Show all hidden original items with animation
+    // Show all hidden original items
     const hiddenItems = document.querySelectorAll('[data-original-hidden="true"]');
 
     hiddenItems.forEach((item) => {
       const htmlItem = item as HTMLElement;
-      htmlItem.style.transition = 'all 0.3s ease';
       htmlItem.style.display = '';
       htmlItem.removeAttribute('data-original-hidden');
-
-      // Animate back in
-      setTimeout(() => {
-        htmlItem.style.opacity = '1';
-        htmlItem.style.transform = 'translateY(0)';
-      }, 10);
     });
 
-    // Remove all items from drop area with animation
+    // Remove all items from drop area
     const dropArea = document.querySelector('.ativos_main_drop_area');
     if (dropArea) {
       const dropAreaItems = dropArea.querySelectorAll('.w-dyn-item, [data-ativo-item]');
 
       dropAreaItems.forEach((item, index) => {
         const htmlItem = item as HTMLElement;
-        htmlItem.style.transition = 'all 0.3s ease';
-        htmlItem.style.opacity = '0';
-        htmlItem.style.transform = 'translateY(-20px)';
 
         setTimeout(() => {
           if (htmlItem.parentElement) {
@@ -538,13 +387,13 @@ export class AtivosManager {
               AtivosCounter.updateCounter();
             }, 50);
           }
-        }, 300);
+        }, 100);
       });
     }
 
     // Update counter immediately to 0
     setTimeout(() => {
       AtivosCounter.updateCounter();
-    }, 350);
+    }, 150);
   }
 }

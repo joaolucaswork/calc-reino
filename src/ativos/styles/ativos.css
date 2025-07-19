@@ -21,15 +21,11 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  border-radius: 8px;
-  background: rgba(218, 165, 33, 0.02);
-  border: 2px solid transparent;
 }
 
 /* Drag states */
 .ativos-ghost {
   opacity: 0.4;
-  background: rgba(218, 165, 33, 0.1) !important;
   border: 2px dashed #daa521 !important;
   border-radius: 8px;
   transform: rotate(2deg);
@@ -53,7 +49,6 @@
 .ativos-fallback {
   cursor: grabbing !important;
   opacity: 0.8;
-  background: rgba(218, 165, 33, 0.1);
   border: 2px dashed #daa521;
   border-radius: 8px;
 }
@@ -98,30 +93,19 @@
   transition: all 0.3s ease;
 }
 
-.drop_ativos_area-wrapper.ativos-empty {
-  border-color: rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.drop_ativos_area-wrapper.ativos-has-items {
-}
-
 /* Main drop area states */
 .ativos_main_drop_area.ativos-empty {
   border-color: rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.02);
 }
 
 .ativos_main_drop_area.ativos-has-items {
   border-color: rgba(218, 165, 33, 0.3);
-  background: rgba(218, 165, 33, 0.05);
 }
 
 /* Active sorting state */
 body.ativos-sorting .drop_ativos_area-wrapper,
 body.ativos-sorting .ativos_main_drop_area {
   border-color: #daa521;
-  background: rgba(218, 165, 33, 0.1);
   box-shadow: inset 0 0 0 2px rgba(218, 165, 33, 0.2);
 }
 
@@ -152,7 +136,6 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   font-style: italic;
   border: 2px dashed rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.02);
 }
 
 .ativos_main-list.ativos-has-items:empty::after,
@@ -299,7 +282,6 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .w-dyn-item {
-    background: var(--color--background);
     border-color: rgba(255, 255, 255, 0.1);
   }
 
@@ -307,11 +289,5 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   .ativos_main_drop_area:empty::after {
     color: rgba(255, 255, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .drop_ativos_area-wrapper.ativos-empty {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
   }
 }

@@ -1,11 +1,13 @@
 /**
  * Webflow Integration for Ativos Module
  *
- * Handles Webflow-specific initialization and integration
+ * Handles Webflow-specific initialization and integration with Enhanced GSAP animations
  */
 
+import Sortable from 'sortablejs';
+
 import { AtivosCounter } from './counter';
-import { AtivosManager } from './sortable-manager';
+import { EnhancedAtivosManager } from './enhanced-sortable-manager';
 
 declare global {
   interface Window {
@@ -53,7 +55,7 @@ export class WebflowAtivosInit {
     AtivosCounter.initialize();
 
     // Then initialize sortable functionality
-    AtivosManager.initialize();
+    EnhancedAtivosManager.initialize();
 
     // Set up additional Webflow-specific features
     this.setupWebflowFeatures();
@@ -105,7 +107,7 @@ export class WebflowAtivosInit {
       if (shouldReinitialize) {
         // Re-initialize sortable for new content
         setTimeout(() => {
-          AtivosManager.initialize();
+          EnhancedAtivosManager.initialize();
           AtivosCounter.updateCounter();
         }, 100);
       }
@@ -124,7 +126,7 @@ export class WebflowAtivosInit {
     // Listen for CMS collection changes
     document.addEventListener('cms:loaded', () => {
       setTimeout(() => {
-        AtivosManager.initialize();
+        EnhancedAtivosManager.initialize();
         AtivosCounter.updateCounter();
       }, 100);
     });
@@ -158,9 +160,9 @@ export class WebflowAtivosInit {
    */
   private static handleResponsiveChange(): void {
     // Re-calculate positions and update sortable options if needed
-    const allSortables = AtivosManager.getAllSortables();
+    const allSortables = EnhancedAtivosManager.getAllSortables();
 
-    allSortables.forEach((sortable) => {
+    allSortables.forEach((sortable: Sortable) => {
       // Trigger a sortable update to recalculate positions
       sortable.option('disabled', false);
     });
@@ -185,7 +187,7 @@ export class WebflowAtivosInit {
    * Manually reinitialize (useful for dynamic content)
    */
   public static reinitialize(): void {
-    AtivosManager.destroyAll();
+    EnhancedAtivosManager.destroyAll();
     this.init();
   }
 
