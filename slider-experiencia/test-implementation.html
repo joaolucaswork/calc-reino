@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio Implementation Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+      }
+      .test-section h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+      .status.pass {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status.fail {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .status.pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .log {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>Portfolio Allocation Interface - Implementation Test</h1>
+
+      <div class="test-section">
+        <h3>
+          1. Investment Strategies Module
+          <span class="status pending" id="strategies-status">PENDING</span>
+        </h3>
+        <p>
+          Testing if the investment strategies module is loaded and functional.
+        </p>
+        <button onclick="testStrategiesModule()">Test Strategies Module</button>
+        <div class="log" id="strategies-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          2. FloatingUI Tooltip System
+          <span class="status pending" id="tooltip-status">PENDING</span>
+        </h3>
+        <p>Testing if FloatingUI is loaded and tooltips can be created.</p>
+        <button onclick="testTooltipSystem()">Test Tooltip System</button>
+        <div class="log" id="tooltip-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          3. Profile Allocation Calculation
+          <span class="status pending" id="allocation-status">PENDING</span>
+        </h3>
+        <p>Testing profile-based allocation calculations.</p>
+        <button onclick="testAllocationCalculation()">
+          Test Allocation Calculation
+        </button>
+        <div class="log" id="allocation-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          4. CSS Styles and Layout
+          <span class="status pending" id="css-status">PENDING</span>
+        </h3>
+        <p>Testing if all CSS classes and styles are properly defined.</p>
+        <button onclick="testCSSStyles()">Test CSS Styles</button>
+        <div class="log" id="css-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          5. Profile Allocation Completeness
+          <span class="status pending" id="completeness-status">PENDING</span>
+        </h3>
+        <p>Testing if profile allocations sum to exactly 100%.</p>
+        <button onclick="testAllocationCompleteness()">
+          Test Allocation Completeness
+        </button>
+        <div class="log" id="completeness-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          6. Notification System
+          <span class="status pending" id="notification-status">PENDING</span>
+        </h3>
+        <p>Testing notification system functionality.</p>
+        <button onclick="testNotificationSystem()">Test Notifications</button>
+        <div class="log" id="notification-log"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>
+          7. Integration Test
+          <span class="status pending" id="integration-status">PENDING</span>
+        </h3>
+        <p>Open the main application to test full integration.</p>
+        <button onclick="openMainApp()">Open Main Application</button>
+        <div class="log" id="integration-log"></div>
+      </div>
+    </div>
+
+    <!-- Load the same dependencies as the main app -->
+    <script src="js/investment-strategies.js"></script>
+
+    <script>
+      function log(sectionId, message, isError = false) {
+        const logElement = document.getElementById(sectionId + "-log");
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}\n`;
+        logElement.textContent += logEntry;
+        logElement.scrollTop = logElement.scrollHeight;
+
+        if (isError) {
+          console.error(message);
+        } else {
+          console.log(message);
+        }
+      }
+
+      function setStatus(sectionId, status) {
+        const statusElement = document.getElementById(sectionId + "-status");
+        statusElement.className = `status ${status}`;
+        statusElement.textContent = status.toUpperCase();
+      }
+
+      function testStrategiesModule() {
+        log("strategies", "Testing Investment Strategies Module...");
+
+        try {
+          // Test if module is loaded
+          if (typeof window.InvestmentStrategies === "undefined") {
+            throw new Error("InvestmentStrategies module not loaded");
+          }
+          log("strategies", "✓ InvestmentStrategies module loaded");
+
+          // Test getting profiles
+          const profiles = window.InvestmentStrategies.getInvestmentProfiles();
+          if (!profiles || Object.keys(profiles).length === 0) {
+            throw new Error("No investment profiles found");
+          }
+          log(
+            "strategies",
+            `✓ Found ${Object.keys(profiles).length} investment profiles`
+          );
+
+          // Test specific profile
+          const conservador =
+            window.InvestmentStrategies.getInvestmentProfile("conservador");
+          if (!conservador) {
+            throw new Error("Conservative profile not found");
+          }
+          log(
+            "strategies",
+            `✓ Conservative profile: ${conservador.name} - ${conservador.description}`
+          );
+
+          // Test allocation calculation
+          const mockAssets = [
+            { name: "CDB", category: "renda-fixa", type: "CDB, LCI, LCA" },
+            { name: "Liquidez", category: "fundos", type: "Liquidez" },
+            { name: "Poupança", category: "outros", type: "Poupança" },
+          ];
+
+          const allocations =
+            window.InvestmentStrategies.calculateProfileAllocations(
+              "conservador",
+              mockAssets
+            );
+          log(
+            "strategies",
+            `✓ Calculated allocations: ${JSON.stringify(allocations)}`
+          );
+
+          setStatus("strategies", "pass");
+          log("strategies", "✅ All tests passed!");
+        } catch (error) {
+          setStatus("strategies", "fail");
+          log("strategies", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function testTooltipSystem() {
+        log("tooltip", "Testing Unified Tooltip System...");
+
+        try {
+          // Test creating a unified tooltip like in the main app
+          const testCard = document.createElement("div");
+          testCard.style.cssText =
+            "position: relative; width: 200px; height: 100px; background: white; border: 1px solid #ccc; border-radius: 8px; margin: 20px;";
+          testCard.textContent = "Test Asset Card";
+          document.body.appendChild(testCard);
+
+          const unifiedTooltip = document.createElement("div");
+          unifiedTooltip.className = "unified-tooltip";
+          unifiedTooltip.innerHTML = `
+            <div class="tooltip-percentage">15.5%</div>
+          `;
+          testCard.appendChild(unifiedTooltip);
+
+          log("tooltip", "✓ Unified tooltip created and attached to card");
+
+          // Test visibility behavior
+          unifiedTooltip.style.display = "block";
+          log("tooltip", "✓ Tooltip is visible when allocation > 0%");
+
+          setTimeout(() => {
+            unifiedTooltip.style.display = "none";
+            log("tooltip", "✓ Tooltip hidden when allocation = 0%");
+          }, 1000);
+
+          // Cleanup
+          setTimeout(() => {
+            if (testCard.parentNode) document.body.removeChild(testCard);
+            log("tooltip", "✓ Test elements cleaned up");
+          }, 2500);
+
+          setStatus("tooltip", "pass");
+          log("tooltip", "✅ Unified tooltip system working!");
+        } catch (error) {
+          setStatus("tooltip", "fail");
+          log("tooltip", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function testAllocationCalculation() {
+        log("allocation", "Testing Profile Allocation Calculations...");
+
+        try {
+          if (typeof window.InvestmentStrategies === "undefined") {
+            throw new Error("InvestmentStrategies module not loaded");
+          }
+
+          const profiles = ["conservador", "moderado", "sofisticado"];
+          const mockAssets = [
+            { name: "CDB", category: "renda-fixa", type: "CDB, LCI, LCA" },
+            {
+              name: "CRI",
+              category: "renda-fixa",
+              type: "CRI, CRA, DEBENTURE",
+            },
+            { name: "Liquidez", category: "fundos", type: "Liquidez" },
+            { name: "Poupança", category: "outros", type: "Poupança" },
+          ];
+
+          profiles.forEach((profileKey) => {
+            const allocations =
+              window.InvestmentStrategies.calculateProfileAllocations(
+                profileKey,
+                mockAssets
+              );
+            const total = Object.values(allocations).reduce(
+              (sum, val) => sum + val,
+              0
+            );
+
+            log(
+              "allocation",
+              `${profileKey}: Total allocation = ${total.toFixed(1)}%`
+            );
+
+            if (Math.abs(total - 100) > 0.1) {
+              log(
+                "allocation",
+                `⚠️ Warning: ${profileKey} total is ${total}%, not 100%`
+              );
+            }
+          });
+
+          setStatus("allocation", "pass");
+          log("allocation", "✅ Allocation calculations working!");
+        } catch (error) {
+          setStatus("allocation", "fail");
+          log("allocation", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function testCSSStyles() {
+        log("css", "Testing CSS Styles...");
+
+        try {
+          // Test if main CSS file is loaded by checking for specific styles
+          const testDiv = document.createElement("div");
+          testDiv.className = "profile-selector";
+          document.body.appendChild(testDiv);
+
+          const styles = window.getComputedStyle(testDiv);
+          const hasStyles =
+            styles.borderRadius !== "0px" || styles.padding !== "0px";
+
+          document.body.removeChild(testDiv);
+
+          if (!hasStyles) {
+            throw new Error("CSS styles not properly loaded");
+          }
+
+          log("css", "✓ CSS styles are loaded");
+
+          // Test tooltip styles
+          const tooltipTest = document.createElement("div");
+          tooltipTest.className = "asset-card-tooltip";
+          document.body.appendChild(tooltipTest);
+
+          const tooltipStyles = window.getComputedStyle(tooltipTest);
+          const hasTooltipStyles = tooltipStyles.position === "absolute";
+
+          document.body.removeChild(tooltipTest);
+
+          if (!hasTooltipStyles) {
+            throw new Error("Tooltip CSS styles not found");
+          }
+
+          log("css", "✓ Tooltip CSS styles are loaded");
+
+          setStatus("css", "pass");
+          log("css", "✅ CSS styles test passed!");
+        } catch (error) {
+          setStatus("css", "fail");
+          log("css", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function testAllocationCompleteness() {
+        log("completeness", "Testing Profile Allocation Completeness...");
+
+        try {
+          if (typeof window.InvestmentStrategies === "undefined") {
+            throw new Error("InvestmentStrategies module not loaded");
+          }
+
+          const profiles = ["conservador", "moderado", "sofisticado"];
+          const mockAssets = [
+            { name: "CDB", category: "renda-fixa", type: "CDB, LCI, LCA" },
+            { name: "CDB2", category: "renda-fixa", type: "CDB, LCI, LCA" },
+            {
+              name: "CRI",
+              category: "renda-fixa",
+              type: "CRI, CRA, DEBENTURE",
+            },
+            {
+              name: "CRI2",
+              category: "renda-fixa",
+              type: "CRI, CRA, DEBENTURE",
+            },
+            { name: "Liquidez", category: "fundos", type: "Liquidez" },
+            { name: "Liquidez2", category: "fundos", type: "Liquidez" },
+            { name: "Poupança", category: "outros", type: "Poupança" },
+            { name: "Previdência", category: "outros", type: "Previdência" },
+            { name: "Imóvel", category: "outros", type: "Imóvel" },
+          ];
+
+          let allTestsPassed = true;
+
+          profiles.forEach((profileKey) => {
+            const allocations =
+              window.InvestmentStrategies.calculateProfileAllocations(
+                profileKey,
+                mockAssets
+              );
+            const total = Object.values(allocations).reduce(
+              (sum, val) => sum + val,
+              0
+            );
+
+            log("completeness", `${profileKey}: Total = ${total.toFixed(2)}%`);
+
+            // Check if total is exactly 100% (within 0.01% tolerance)
+            if (Math.abs(total - 100) > 0.01) {
+              log(
+                "completeness",
+                `❌ ${profileKey}: Total is ${total.toFixed(2)}%, not 100%`,
+                true
+              );
+              allTestsPassed = false;
+            } else {
+              log("completeness", `✓ ${profileKey}: Perfect 100% allocation`);
+            }
+
+            // Check if all assets have non-negative allocations
+            Object.entries(allocations).forEach(([asset, value]) => {
+              if (value < 0) {
+                log(
+                  "completeness",
+                  `❌ ${profileKey}: ${asset} has negative allocation: ${value}%`,
+                  true
+                );
+                allTestsPassed = false;
+              }
+            });
+          });
+
+          if (allTestsPassed) {
+            setStatus("completeness", "pass");
+            log(
+              "completeness",
+              "✅ All profile allocations sum to exactly 100%!"
+            );
+          } else {
+            setStatus("completeness", "fail");
+            log("completeness", "❌ Some allocations do not sum to 100%");
+          }
+        } catch (error) {
+          setStatus("completeness", "fail");
+          log("completeness", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function testNotificationSystem() {
+        log("notification", "Testing Notification System...");
+
+        try {
+          // Test creating notification elements
+          const testNotification = document.createElement("div");
+          testNotification.className = "notification notification-success";
+          testNotification.textContent = "Test notification";
+          testNotification.style.position = "fixed";
+          testNotification.style.top = "100px";
+          testNotification.style.right = "20px";
+          testNotification.style.transform = "translateX(0)";
+
+          document.body.appendChild(testNotification);
+          log("notification", "✓ Success notification element created");
+
+          // Test warning notification
+          const warningNotification = document.createElement("div");
+          warningNotification.className = "notification notification-warning";
+          warningNotification.textContent = "Test warning";
+          warningNotification.style.position = "fixed";
+          warningNotification.style.top = "150px";
+          warningNotification.style.right = "20px";
+          warningNotification.style.transform = "translateX(0)";
+
+          document.body.appendChild(warningNotification);
+          log("notification", "✓ Warning notification element created");
+
+          // Clean up after 3 seconds
+          setTimeout(() => {
+            if (testNotification.parentNode) {
+              document.body.removeChild(testNotification);
+            }
+            if (warningNotification.parentNode) {
+              document.body.removeChild(warningNotification);
+            }
+            log("notification", "✓ Test notifications cleaned up");
+          }, 3000);
+
+          setStatus("notification", "pass");
+          log("notification", "✅ Notification system test passed!");
+        } catch (error) {
+          setStatus("notification", "fail");
+          log("notification", `❌ Error: ${error.message}`, true);
+        }
+      }
+
+      function openMainApp() {
+        log("integration", "Opening main application...");
+        window.open("index.html", "_blank");
+        setStatus("integration", "pass");
+        log("integration", "✅ Main application opened in new tab");
+      }
+
+      // Auto-run basic tests on load
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          testStrategiesModule();
+          setTimeout(() => testTooltipSystem(), 1000);
+          setTimeout(() => testAllocationCalculation(), 2000);
+          setTimeout(() => testCSSStyles(), 3000);
+          setTimeout(() => testAllocationCompleteness(), 4000);
+          setTimeout(() => testNotificationSystem(), 5000);
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

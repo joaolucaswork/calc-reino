@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio Enhanced - Test Implementation</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Range Slider Element for enhanced slider functionality -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/range-slider-element@2/+esm"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/range-slider-element@2/dist/range-slider-element.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Main Grid Layout -->
+      <div class="main-grid">
+        <div
+          class="asset-card"
+          data-category="renda-fixa"
+          data-asset="CDB"
+          data-asset-id="cdb-1"
+          data-asset-type="CDB, LCI, LCA"
+        >
+          <div class="card-header">
+            <div class="header-content">
+              <div class="category-asset-line">
+                Renda fixa<span class="separator">></span
+                ><span class="asset-type-text">CDB, LCI, LCA</span>
+              </div>
+            </div>
+            <i class="fas fa-edit edit-icon"></i>
+          </div>
+          <div class="asset-type" style="display: none">CDB, LCI, LCA</div>
+          <div class="allocation-value">R$0</div>
+          <div class="slider-container">
+            <range-slider
+              class="allocation-slider"
+              min="0"
+              max="100"
+              value="0"
+              data-asset="CDB"
+              aria-label="CDB allocation percentage"
+            ></range-slider>
+          </div>
+        </div>
+
+        <div
+          class="asset-card"
+          data-category="outros"
+          data-asset="Poupança"
+          data-asset-id="poupanca-1"
+          data-asset-type="Poupança"
+        >
+          <div class="card-header">
+            <div class="header-content">
+              <div class="category-asset-line">
+                Outros<span class="separator">></span><span class="asset-type-text">Poupança</span>
+              </div>
+            </div>
+            <i class="fas fa-edit edit-icon"></i>
+          </div>
+          <div class="asset-type" style="display: none">Poupança</div>
+          <div class="allocation-value">R$0</div>
+          <div class="slider-container">
+            <range-slider
+              class="allocation-slider"
+              min="0"
+              max="100"
+              value="0"
+              data-asset="Poupança"
+              aria-label="Poupança allocation percentage"
+            ></range-slider>
+          </div>
+        </div>
+
+        <div
+          class="asset-card"
+          data-category="renda-fixa"
+          data-asset="CRI"
+          data-asset-id="cri-1"
+          data-asset-type="CRI, CRA"
+        >
+          <div class="card-header">
+            <div class="header-content">
+              <div class="category-asset-line">
+                Renda fixa<span class="separator">></span
+                ><span class="asset-type-text">CRI, CRA</span>
+              </div>
+            </div>
+            <i class="fas fa-edit edit-icon"></i>
+          </div>
+          <div class="asset-type" style="display: none">CRI, CRA</div>
+          <div class="allocation-value">R$0</div>
+          <div class="slider-container">
+            <range-slider
+              class="allocation-slider"
+              min="0"
+              max="100"
+              value="0"
+              data-asset="CRI"
+              aria-label="CRI allocation percentage"
+            ></range-slider>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="sidebar">
+        <div class="portfolio-header">
+          <div class="profile-selector-section">
+            <div class="profile-selector-label">Perfil de Investimento</div>
+            <div class="profile-selector-container">
+              <select id="investment-profile-selector" class="profile-selector">
+                <option value="">Selecione seu perfil</option>
+                <option value="conservador">🛡️ Conservador</option>
+                <option value="moderado">⚖️ Moderado</option>
+                <option value="sofisticado">🚀 Sofisticado</option>
+              </select>
+              <button id="apply-profile-btn" class="apply-profile-btn" disabled>
+                Aplicar Perfil
+              </button>
+            </div>
+          </div>
+
+          <div class="total-label">Seu patrimônio total</div>
+          <div class="total-value">R$ 980.250,00</div>
+          <div class="remaining-section">
+            <div class="remaining-label">Falta alocar</div>
+            <div class="remaining-value">R$ 980.250,00</div>
+          </div>
+
+          <div class="strategy-section">
+            <div class="strategy-label">Sua estratégia</div>
+            <div class="strategy-text" id="strategy-text">
+              Comece alocando seus ativos para descobrir sua estratégia
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/portfolio-bundle.js"></script>
+
+    <script>
+      // Test that everything is working
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log('Page loaded - testing slider tooltips');
+
+        // Add some test styles for debugging
+        const style = document.createElement('style');
+        style.textContent = `
+                .slider-tooltip {
+                    border: 2px solid red !important;
+                }
+                .slider-tooltip.visible {
+                    border-color: green !important;
+                }
+            `;
+        document.head.appendChild(style);
+      });
+    </script>
+  </body>
+</html>

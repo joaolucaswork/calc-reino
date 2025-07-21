@@ -1,0 +1,1018 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  gap: 32px;
+  padding: 32px;
+  max-width: 1500px; /* Increased from 1440px to accommodate larger sidebar */
+  margin: 0 auto;
+}
+
+/* Main Grid Layout */
+.main-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 16px 12px; /* Reduced horizontal gap, maintained vertical gap */
+  min-height: 640px;
+}
+
+/* Asset Cards */
+.asset-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative; /* Necessário para posicionamento do tooltip */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid transparent; /* Remove unwanted borders */
+  opacity: 0.5; /* Default dimmed state */
+}
+
+/* Manual input indicator - shows when user has manually entered a value */
+.allocation-value.manual-input {
+  background: rgba(181, 137, 34, 0.1);
+  border: 1px solid #b58922;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Small indicator dot for manual input */
+.allocation-value.manual-input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background: #b58922;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.asset-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  border-color: #e2e8f0;
+}
+
+.asset-card.active {
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  opacity: 1; /* Full opacity for active card */
+}
+
+.asset-card.focused {
+  opacity: 1; /* Full opacity for focused card */
+}
+
+.asset-card.hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(196, 151, 37, 0.15);
+}
+
+.asset-card.editing {
+  border-color: #c49725;
+  box-shadow: 0 0 0 3px rgba(196, 151, 37, 0.1);
+  transform: scale(1.02);
+}
+
+.asset-card.dragging {
+  opacity: 0.8;
+  transform: rotate(2deg) scale(1.02);
+  z-index: 1000;
+}
+
+/* Enhanced value display states */
+.allocation-value.has-value {
+  color: #c49725;
+  font-weight: 700;
+}
+
+.allocation-value.value-changing {
+  background: rgba(196, 151, 37, 0.1);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.category-asset-line {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+  line-height: 1.3;
+}
+
+.category-asset-line .asset-type-text {
+  font-weight: 700; /* Make asset type bold */
+  color: #1e293b; /* Slightly darker for better contrast */
+}
+
+.category-asset-line .separator {
+  margin: 0 6px;
+  color: #cbd5e1;
+}
+
+.category-label {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+}
+
+.edit-icon {
+  color: #64748b;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.asset-card:hover .edit-icon {
+  opacity: 1;
+}
+
+.edit-icon:hover {
+  color: #334155;
+}
+
+.asset-type {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  display: none; /* Hide since we're showing it in header */
+}
+
+.allocation-value {
+  font-size: 20px; /* Increased font size */
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 20px;
+  text-align: center;
+  /* Removed background and padding for plain text styling */
+  cursor: pointer; /* Indicate it's clickable */
+  transition: color 0.2s ease;
+}
+
+.allocation-value:hover {
+  color: #c49725; /* Highlight on hover */
+}
+
+.slider-container {
+  position: relative;
+  margin-top: 32px; /* Adjusted spacing */
+}
+
+/* Range Slider Element Styling */
+.allocation-slider {
+  width: 100%;
+  --track-size: 8px;
+  --thumb-size: 24px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease-out;
+}
+
+/* Range slider track styling */
+range-slider.allocation-slider [data-track] {
+  background: #e5e7eb;
+  border-radius: 4px;
+  height: var(--track-size);
+}
+
+range-slider.allocation-slider [data-track-fill] {
+  background: linear-gradient(90deg, #c49725 0%, #a67b1f 100%);
+  border-radius: 4px;
+  transition: all 0.15s ease-out;
+}
+
+/* Range slider thumb styling */
+range-slider.allocation-slider [data-thumb] {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  background: #c49725;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+range-slider.allocation-slider [data-thumb]:hover {
+  background: #a67b1f;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(196, 151, 37, 0.3);
+}
+
+range-slider.allocation-slider [data-thumb]:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+/* Focus styling for accessibility */
+range-slider.allocation-slider:focus-within [data-thumb] {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    0 0 0 3px rgba(196, 151, 37, 0.2);
+}
+
+/* Snap point indicators */
+.slider-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0%,
+    transparent calc(20% - 2px),
+    /* Made indicators more prominent */ #c49725 calc(20% - 2px),
+    /* Updated color and made more visible */ #c49725 calc(20% - 1px),
+    transparent calc(20% - 1px),
+    transparent 20%
+  );
+  pointer-events: none;
+  border-radius: 4px;
+  transform: translateY(-50%);
+  opacity: 0.4; /* Made snap points subtle but visible */
+}
+
+/* Modern Custom Tooltip */
+.modern-tooltip {
+  background: #1e293b;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+  max-width: 200px;
+  text-align: center;
+  line-height: 1.3;
+  transform: scale(0.9);
+  position: fixed; /* Changed to fixed for better positioning */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  word-wrap: break-word;
+}
+
+.modern-tooltip.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modern-tooltip.error {
+  background: #ef4444;
+  color: white;
+  animation: pulse 0.5s ease-in-out 2;
+}
+
+.modern-tooltip.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.modern-tooltip.success {
+  background: #10b981;
+  color: white;
+}
+
+/* Tooltip Arrow */
+.modern-tooltip[data-placement^='top'] .tooltip-arrow {
+  bottom: -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #1e293b;
+}
+
+.modern-tooltip[data-placement^='bottom'] .tooltip-arrow {
+  top: -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid #1e293b;
+}
+
+.modern-tooltip[data-placement^='left'] .tooltip-arrow {
+  right: -4px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 4px solid #1e293b;
+}
+
+.modern-tooltip[data-placement^='right'] .tooltip-arrow {
+  left: -4px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 4px solid #1e293b;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Error tooltips arrows */
+.modern-tooltip.error[data-placement^='top'] .tooltip-arrow {
+  border-top-color: #ef4444;
+}
+
+.modern-tooltip.error[data-placement^='bottom'] .tooltip-arrow {
+  border-bottom-color: #ef4444;
+}
+
+.modern-tooltip.error[data-placement^='left'] .tooltip-arrow {
+  border-left-color: #ef4444;
+}
+
+.modern-tooltip.error[data-placement^='right'] .tooltip-arrow {
+  border-right-color: #ef4444;
+}
+
+/* Warning tooltips arrows */
+.modern-tooltip.warning[data-placement^='top'] .tooltip-arrow {
+  border-top-color: #f59e0b;
+}
+
+.modern-tooltip.warning[data-placement^='bottom'] .tooltip-arrow {
+  border-bottom-color: #f59e0b;
+}
+
+.modern-tooltip.warning[data-placement^='left'] .tooltip-arrow {
+  border-left-color: #f59e0b;
+}
+
+.modern-tooltip.warning[data-placement^='right'] .tooltip-arrow {
+  border-right-color: #f59e0b;
+}
+
+/* Success tooltips arrows */
+.modern-tooltip.success[data-placement^='top'] .tooltip-arrow {
+  border-top-color: #10b981;
+}
+
+.modern-tooltip.success[data-placement^='bottom'] .tooltip-arrow {
+  border-bottom-color: #10b981;
+}
+
+.modern-tooltip.success[data-placement^='left'] .tooltip-arrow {
+  border-left-color: #10b981;
+}
+
+.modern-tooltip.success[data-placement^='right'] .tooltip-arrow {
+  border-right-color: #10b981;
+}
+
+/* Slider Tooltip - Enhanced to follow the slider handle */
+.slider-tooltip {
+  position: absolute;
+  background: #b58922; /* Updated background color */
+  color: white; /* White text for contrast */
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(181, 137, 34, 0.3);
+  z-index: 1000;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  min-width: 50px;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  top: -45px; /* Position above the slider */
+  left: 50%;
+  transform-origin: bottom center;
+}
+
+/* Arrow pointing to the slider handle */
+.slider-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #b58922; /* Match tooltip background */
+  border-bottom: none;
+}
+
+/* Show tooltip when slider has value */
+.slider-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) translateX(-50%);
+}
+
+/* Position tooltip based on slider thumb position */
+.slider-container {
+  position: relative;
+}
+
+/* Estilos antigos de tooltip removidos - agora usando unified-tooltip */
+
+/* Pulse animation for error tooltips */
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Budget warning pulse animation */
+@keyframes budgetWarningPulse {
+  0%,
+  100% {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4);
+  }
+}
+
+/* Edit input styling */
+.edit-input {
+  transition: all 0.2s ease;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #c49725;
+  box-shadow: 0 0 0 3px rgba(196, 151, 37, 0.2);
+}
+
+/* Visual correlation effect */
+.asset-card.visual-correlation {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+/* Budget warning states */
+.asset-card.budget-warning {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.asset-card.budget-limited .allocation-slider {
+  background: linear-gradient(
+    to right,
+    #ef4444 0%,
+    #ef4444 var(--progress, 0%),
+    #e5e7eb var(--progress, 0%),
+    #e5e7eb 100%
+  );
+}
+
+.asset-card.budget-limited .allocation-slider::-webkit-slider-thumb {
+  background: #ef4444;
+  border-color: #dc2626;
+}
+
+.asset-card.budget-limited .allocation-slider::-moz-range-thumb {
+  background: #ef4444;
+  border-color: #dc2626;
+}
+
+/* Enhanced visual feedback */
+.allocation-slider:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(196, 151, 37, 0.2); /* Updated color */
+}
+
+/* Right Sidebar */
+.sidebar {
+  width: 380px; /* Increased from 340px to 380px */
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  height: fit-content;
+  border: 1px solid transparent; /* Remove unwanted borders */
+}
+
+.portfolio-header {
+  background: linear-gradient(135deg, #c49725, #a67b1f); /* Updated colors */
+  color: white;
+  padding: 28px 24px; /* Reduced padding to accommodate more content */
+  border-radius: 24px;
+  position: relative;
+  overflow: visible; /* Allow dropdowns to overflow */
+}
+
+/* Investment Profile Selector */
+.profile-selector-section {
+  margin-bottom: 20px; /* Reduced from 24px */
+  padding-bottom: 16px; /* Reduced from 20px */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-selector-label {
+  font-size: 13px; /* Reduced from 14px */
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 10px; /* Reduced from 12px */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-selector-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-selector {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  padding: 8px 10px; /* Reduced padding */
+  font-size: 13px; /* Reduced font size */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.profile-selector:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.profile-selector:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.profile-selector option {
+  background: #1e293b;
+  color: white;
+  padding: 8px;
+}
+
+.apply-profile-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  padding: 8px 12px; /* Reduced padding */
+  font-size: 11px; /* Reduced font size */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.apply-profile-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.apply-profile-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.apply-profile-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-actions {
+  margin-top: 8px; /* Reduced from 12px */
+  display: flex;
+  justify-content: center;
+}
+
+.total-label {
+  font-size: 18px;
+  font-weight: 400;
+  opacity: 0.95;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.total-value {
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: -1px;
+  margin-bottom: 24px;
+  text-align: left;
+  line-height: 1.1;
+  word-break: break-word; /* Prevent layout breaks */
+  overflow-wrap: break-word; /* Additional support for long values */
+}
+
+.remaining-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.remaining-label {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.remaining-value {
+  font-size: 22px;
+  font-weight: 600;
+  opacity: 1;
+  transition: all 0.3s ease;
+  word-break: break-word; /* Prevent layout breaks */
+  overflow-wrap: break-word;
+  text-align: right;
+}
+
+/* Enhanced remaining amount visual feedback - REMOVED */
+/* All color changes removed to maintain consistent appearance */
+
+/* Pulse glow animation removed - no longer needed */
+
+/* Dynamic Strategy Section */
+.strategy-section {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.strategy-label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.strategy-text {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 0.95;
+  min-height: 44px;
+  transition: all 0.3s ease;
+}
+
+/* Enhanced strategy content styling */
+.strategy-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.strategy-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.strategy-text[data-strategy-type='conservative'] {
+  /* Removed colored border */
+  padding-left: 0px;
+}
+
+.strategy-text[data-strategy-type='aggressive'] {
+  /* Removed colored border */
+  padding-left: 0px;
+}
+
+.strategy-text[data-strategy-type='balanced'] {
+  /* Removed colored border */
+  padding-left: 0px;
+}
+
+.strategy-text[data-strategy-type='liquidity'] {
+  /* Removed colored border */
+  padding-left: 0px;
+}
+
+.strategy-text[data-strategy-type='diversified'] {
+  /* Removed colored border */
+  padding-left: 0px;
+}
+
+/* Learn More Button */
+.learn-more-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+  margin-top: 12px;
+  display: inline-block;
+}
+
+.learn-more-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.learn-more-btn:active {
+  transform: translateY(0);
+}
+
+/* Edit Input for Manual Value Entry */
+.allocation-value-input {
+  background: rgba(30, 41, 59, 0.1);
+  border: 2px solid #c49725;
+  border-radius: 8px;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 12px;
+  width: 120px;
+  margin: 0 auto;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.allocation-value-input:focus {
+  border-color: #a67b1f;
+  box-shadow: 0 0 0 3px rgba(196, 151, 37, 0.2);
+}
+
+.allocation-value.editing {
+  display: none;
+}
+
+/* Manual input indicator - subtle styling to show precise values */
+.allocation-value.manual-input {
+  font-style: italic;
+  position: relative;
+}
+
+.allocation-value.manual-input::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 1px;
+  background: #c49725;
+  opacity: 0.6;
+}
+
+.assets-section {
+  padding: 28px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.assets-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 24px;
+}
+
+.asset-category {
+  margin-bottom: 28px;
+}
+
+.asset-category h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 16px;
+}
+
+.asset-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.asset-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: #475569;
+  cursor: move;
+  transition: all 0.3s ease;
+}
+
+.asset-chip:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.drag-handle {
+  color: #94a3b8;
+  font-size: 14px;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Removed unused drag-and-drop styles */
+
+/* Empty grid slot styling */
+.grid-slot-empty {
+  background: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Removed unused drag-over styles */
+
+/* Removed unused drag-and-drop transformation animations */
+
+/* Enhanced drag handle */
+.drag-handle {
+  cursor: grab;
+  transition: color 0.3s ease;
+}
+
+.drag-handle:hover {
+  color: #c49725; /* Updated color */
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Validation warning styles */
+.validation-warning {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ef4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+  z-index: 101;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card appearance animation */
+.card-appear-animation {
+  animation: cardAppear 0.4s ease-out;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Chip dragging animation */
+.chip-dragging {
+  transform: scale(1.1) rotate(-2deg);
+  z-index: 1000;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .main-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, 1fr);
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    order: -1;
+  }
+
+  .assets-section {
+    max-height: 300px;
+  }
+}
