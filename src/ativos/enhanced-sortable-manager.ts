@@ -40,12 +40,19 @@ export class EnhancedAtivosManager {
     this.setupClickToAddFunctionality();
     this.setupAdicionarToggle();
 
+    // Add event listener for container updates triggered by cache loading
+    document.addEventListener('ativos-update-containers', () => {
+      this.updateContainerStates();
+    });
+
     // Set initial state for source containers and load persisted assets
     setTimeout(() => {
       this.updateContainerStates();
       this.loadPersistedAssets();
-      // Load drop area items after other assets are loaded
-      DropAreaPersistence.loadDropAreaItems();
+      // Load drop area items after other assets are loaded with additional delay
+      setTimeout(() => {
+        DropAreaPersistence.loadDropAreaItems();
+      }, 100);
     }, 100);
   }
 
@@ -259,7 +266,6 @@ export class EnhancedAtivosManager {
 
   private static handleAdd = (evt: Sortable.SortableEvent): void => {
     AtivosCounter.updateCounter();
-    // Update source container state (item was removed from source)
     this.updateContainerStates();
 
     // Ensure the moved item has proper identification for persistence
@@ -267,30 +273,34 @@ export class EnhancedAtivosManager {
       const element = evt.item as HTMLElement;
       const itemName = this.extractItemName(element);
 
-      // Add identification attributes if missing for original items
-      if (
-        !element.getAttribute('data-original-id') &&
-        !element.getAttribute('data-id') &&
-        !element.hasAttribute('data-new-asset')
-      ) {
+      // MELHORADA: Lógica mais robusta para atribuição de ID
+      const hasExistingId =
+        element.getAttribute('data-original-id') || element.getAttribute('data-id');
+      const isCustomAsset = element.hasAttribute('data-new-asset');
+
+      if (!hasExistingId && !isCustomAsset && itemName) {
         const uniqueId = `original-${itemName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
         element.setAttribute('data-original-id', uniqueId);
         element.setAttribute('data-ativo-item', 'true');
+        console.error('DEBUG: Assigned ID in handleAdd:', uniqueId, itemName);
       }
 
-      // Store original item data for restoration
-      if (!this.originalItemsData.has(element)) {
+      // Store original item data for restoration if not already stored
+      if (!this.originalItemsData.has(element) && !isCustomAsset) {
         const sourceContainer = evt.from;
         const originalIndex = Array.from(sourceContainer.children).indexOf(element);
         this.originalItemsData.set(element, {
           parent: sourceContainer,
-          index: originalIndex,
+          index: originalIndex >= 0 ? originalIndex : 0,
         });
+        console.error('DEBUG: Stored original item data for:', itemName);
       }
     }
 
-    // Save drop area items to persistence
-    setTimeout(() => DropAreaPersistence.saveDropAreaItems(), 150);
+    // Save drop area items to persistence with delay to ensure DOM is updated
+    setTimeout(() => {
+      DropAreaPersistence.saveDropAreaItems();
+    }, 150);
   };
 
   private static handleRemove = (): void => {
@@ -361,6 +371,15 @@ export class EnhancedAtivosManager {
     items.forEach((item, index) => {
       // Only save original CMS items, not custom assets
       if (!item.hasAttribute('data-new-asset')) {
+        // NOVO: Garantir que o item tenha um ID único
+        if (!item.getAttribute('data-original-id') && !item.getAttribute('data-id')) {
+          const itemName = this.extractItemName(item);
+          const uniqueId = `original-${itemName.toLowerCase().replace(/\s+/g, '-')}-${index}-${Date.now()}`;
+          item.setAttribute('data-original-id', uniqueId);
+          item.setAttribute('data-ativo-item', 'true');
+          // Assigned ID to original item
+        }
+
         this.originalItemsData.set(item, {
           parent: container,
           index,

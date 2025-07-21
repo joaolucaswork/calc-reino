@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+interface StoredDropAreaItem {
+  id: string;
+  name: string;
+  type: 'original' | 'custom';
+  position: number;
+  createdAt: string;
+  originalId?: string;
+}
+
 test.describe('Ativos Drag and Drop', () => {
   test.beforeEach(async ({ page }) => {
     // Navegar para a página com os ativos
@@ -133,5 +142,53 @@ test.describe('Ativos Drag and Drop', () => {
     expect(debugInfo.dropAreasCount).toBeGreaterThan(0);
     expect(debugInfo.mainDropAreasCount).toBeGreaterThan(0);
     expect(debugInfo.sourceItemsCount).toBeGreaterThan(0);
+  });
+
+  test('should persist original items in localStorage after drag', async ({ page }) => {
+    // Localizar item original
+    const sourceItem = page.locator('.ativos_main-list .w-dyn-item').first();
+    const itemText = await sourceItem.textContent();
+
+    // Arrastar para drop area
+    const dropArea = page.locator('.drop_ativos_area-wrapper');
+    await sourceItem.dragTo(dropArea);
+    await page.waitForTimeout(1000);
+
+    // Verificar se foi salvo no localStorage
+    const storedItems = (await page.evaluate(() => {
+      const stored = localStorage.getItem('ativos_drop_area_items');
+      return stored ? JSON.parse(stored) : [];
+    })) as StoredDropAreaItem[];
+
+    expect(storedItems.length).toBeGreaterThan(0);
+    expect(
+      storedItems.some((item: StoredDropAreaItem) => item.name.includes(itemText?.trim() || ''))
+    ).toBe(true);
+    expect(storedItems.some((item: StoredDropAreaItem) => item.type === 'original')).toBe(true);
+  });
+
+  test('should restore original items after page reload', async ({ page }) => {
+    // Primeiro, arrastar um item
+    const sourceItem = page.locator('.ativos_main-list .w-dyn-item').first();
+    const itemText = await sourceItem.textContent();
+    const dropArea = page.locator('.drop_ativos_area-wrapper');
+
+    await sourceItem.dragTo(dropArea);
+    await page.waitForTimeout(1000);
+
+    // Recarregar página
+    await page.reload();
+    await page.waitForTimeout(2000);
+
+    // Verificar se item foi restaurado na drop area
+    const dropAreaItems = page.locator('.ativos_main_drop_area .w-dyn-item');
+    const dropAreaCount = await dropAreaItems.count();
+
+    expect(dropAreaCount).toBeGreaterThan(0);
+
+    if (dropAreaCount > 0) {
+      const restoredItemText = await dropAreaItems.first().textContent();
+      expect(restoredItemText).toContain(itemText?.trim() || '');
+    }
   });
 });

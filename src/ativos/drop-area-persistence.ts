@@ -27,20 +27,54 @@ export class DropAreaPersistence {
         return;
       }
 
+      // DEBUG: Let's see what's actually in the drop area
+      const allChildren = Array.from(dropArea.children);
+      console.error('DEBUG: Drop area has', allChildren.length, 'total children');
+      allChildren.forEach((child, index) => {
+        const element = child as HTMLElement;
+        console.error(`DEBUG: Child ${index}:`, {
+          tagName: element.tagName,
+          className: element.className,
+          attributes: Array.from(element.attributes).map((attr) => `${attr.name}="${attr.value}"`),
+          textContent: element.textContent?.trim().substring(0, 50),
+        });
+      });
+
       const items = Array.from(dropArea.querySelectorAll('.w-dyn-item, [data-ativo-item]'));
+      console.error('DEBUG: Found', items.length, 'items with expected selectors');
+
       const dropAreaItems: DropAreaItem[] = [];
 
       items.forEach((item, index) => {
         const element = item as HTMLElement;
         const name = this.extractItemName(element);
         const isCustomAsset = element.hasAttribute('data-new-asset');
-        const originalId =
+
+        console.error('DEBUG: Processing item:', {
+          index,
+          name: `"${name}"`,
+          nameLength: name.length,
+          isCustomAsset,
+          hasDataOriginalId: !!element.getAttribute('data-original-id'),
+          hasDataId: !!element.getAttribute('data-id'),
+          hasDataAtivoItem: !!element.getAttribute('data-ativo-item'),
+          className: element.className,
+        });
+
+        // MELHORADA: Lógica mais robusta para originalId
+        let originalId =
           element.getAttribute('data-original-id') ||
           element.getAttribute('data-id') ||
           element.getAttribute('data-ativo-item');
 
+        // Se não tem ID e não é custom asset, criar um baseado no nome e posição
+        if (!originalId && !isCustomAsset && name) {
+          originalId = `original-${name.toLowerCase().replace(/\s+/g, '-')}-${index}-${Date.now()}`;
+          element.setAttribute('data-original-id', originalId);
+          console.error('DEBUG: Created missing ID for original item:', originalId, name);
+        }
+
         if (name) {
-          // Generate a unique ID for items that don't have one
           const itemId =
             originalId || `item-${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
 
@@ -52,10 +86,23 @@ export class DropAreaPersistence {
             createdAt: element.getAttribute('data-created-at') || new Date().toISOString(),
             originalId: originalId || itemId,
           });
+
+          console.error('DEBUG: Saved item to cache:', {
+            name,
+            type: isCustomAsset ? 'custom' : 'original',
+            id: itemId,
+          });
+        } else {
+          console.error('DEBUG: Item REJECTED - no name found:', {
+            index,
+            textContent: element.textContent?.trim().substring(0, 100),
+            innerHTML: element.innerHTML.substring(0, 200),
+          });
         }
       });
 
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dropAreaItems));
+      console.error('DEBUG: Saved', dropAreaItems.length, 'items to localStorage');
     } catch (error) {
       console.error('Error saving drop area items:', error);
     }
@@ -68,13 +115,16 @@ export class DropAreaPersistence {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (!stored) {
+        console.error('DEBUG: No stored drop area items found');
         return;
       }
 
       const dropAreaItems: DropAreaItem[] = JSON.parse(stored);
-      const dropArea = document.querySelector('.ativos_main_drop_area');
+      console.error('DEBUG: Loading', dropAreaItems.length, 'drop area items:', dropAreaItems);
 
+      const dropArea = document.querySelector('.ativos_main_drop_area');
       if (!dropArea) {
+        console.error('DEBUG: Drop area not found for loading');
         return;
       }
 
@@ -98,13 +148,24 @@ export class DropAreaPersistence {
           if (itemElement) {
             dropArea.appendChild(itemElement);
 
-            // Hide corresponding source item if it's an original item
-            if (itemData.type === 'original' && itemData.originalId) {
-              this.hideSourceItem(itemData.originalId, itemData.name);
-            }
+            // Hide corresponding source item for ALL types (original AND custom)
+            // This ensures that items loaded from cache only appear in the drop area
+            console.error('DEBUG: Attempting to hide source item:', {
+              name: itemData.name,
+              type: itemData.type,
+              originalId: itemData.originalId,
+            });
+            this.hideSourceItem(itemData.originalId || '', itemData.name);
           }
         }
       });
+
+      // Additional step: Update container states after loading to ensure UI consistency
+      setTimeout(() => {
+        // Import and call updateContainerStates if available
+        const event = new CustomEvent('ativos-update-containers');
+        document.dispatchEvent(event);
+      }, 50);
     } catch (error) {
       console.error('Error loading drop area items:', error);
     }
@@ -156,21 +217,65 @@ export class DropAreaPersistence {
    * Hide source item when it's in the drop area
    */
   private static hideSourceItem(originalId: string, itemName: string): void {
+    console.error('DEBUG: hideSourceItem called with:', { originalId, itemName });
+
     const sourceContainers = document.querySelectorAll('.ativos_main-list');
+    console.error('DEBUG: Found', sourceContainers.length, 'source containers');
 
-    sourceContainers.forEach((container) => {
+    sourceContainers.forEach((container, containerIndex) => {
       const items = container.querySelectorAll('.w-dyn-item, [data-ativo-item]');
+      console.error(`DEBUG: Container ${containerIndex} has`, items.length, 'items');
 
-      items.forEach((item) => {
+      items.forEach((item, itemIndex) => {
         const element = item as HTMLElement;
         const elementId =
           element.getAttribute('data-id') || element.getAttribute('data-original-id');
         const elementName = this.extractItemName(element);
 
-        // Match by ID or name
-        if ((originalId && elementId === originalId) || (!originalId && elementName === itemName)) {
+        console.error(`DEBUG: Checking item ${itemIndex}:`, {
+          elementName,
+          elementId,
+          isCustomAsset: element.hasAttribute('data-new-asset'),
+        });
+
+        // MELHORADA: Lógica de correspondência mais robusta
+        const matchById = originalId && elementId && elementId === originalId;
+        const matchByName =
+          itemName &&
+          elementName &&
+          elementName.toLowerCase().trim() === itemName.toLowerCase().trim();
+
+        // For custom assets, also check data-asset-name attribute
+        const matchByAssetName = itemName && element.getAttribute('data-asset-name') === itemName;
+
+        // Evitar ocultar itens já ocultos ou botões especiais
+        const isAlreadyHidden =
+          element.style.display === 'none' || element.hasAttribute('data-original-hidden');
+        const isSpecialButton =
+          element.id === 'adicionarAtivo' || element.classList.contains('add_ativo_manual');
+
+        const shouldHide =
+          (matchById || matchByName || matchByAssetName) && !isAlreadyHidden && !isSpecialButton;
+
+        console.error(`DEBUG: Item ${itemIndex} decision:`, {
+          matchById,
+          matchByName,
+          matchByAssetName,
+          isAlreadyHidden,
+          isSpecialButton,
+          shouldHide,
+        });
+
+        if (shouldHide) {
           element.style.display = 'none';
           element.setAttribute('data-original-hidden', 'true');
+          console.error('DEBUG: Successfully hidden source item:', {
+            elementName,
+            originalId,
+            matchById,
+            matchByName,
+            matchByAssetName,
+          });
         }
       });
     });
@@ -180,16 +285,58 @@ export class DropAreaPersistence {
    * Extract item name from element
    */
   private static extractItemName(element: HTMLElement): string {
-    // Try different selectors to find the text content
-    const textElement =
-      element.querySelector('[class*="text"], .text-block, span, div') ||
-      element.querySelector('*:not(script):not(style)');
+    console.error('DEBUG: extractItemName called for element:', {
+      tagName: element.tagName,
+      className: element.className,
+      textContent: element.textContent?.trim().substring(0, 100),
+      innerHTML: element.innerHTML.substring(0, 200),
+    });
 
-    if (textElement) {
-      return textElement.textContent?.trim() || '';
+    // Strategy 1: Try different selectors to find the text content
+    const textSelectors = [
+      '[class*="text"]',
+      '.text-block',
+      'span:not(:empty)',
+      'div:not(:has(*))', // div with no child elements
+      '*:not(script):not(style):not(svg):not(path)',
+    ];
+
+    for (const selector of textSelectors) {
+      try {
+        const textElement = element.querySelector(selector);
+        if (textElement && textElement.textContent?.trim()) {
+          const extractedName = textElement.textContent.trim();
+          console.error(`DEBUG: Found name using selector "${selector}":`, extractedName);
+          return extractedName;
+        }
+      } catch (e) {
+        console.error(`DEBUG: Selector "${selector}" failed:`, e);
+      }
     }
 
-    return element.textContent?.trim() || '';
+    // Strategy 2: If no child elements work, use the element's direct textContent
+    const directText = element.textContent?.trim() || '';
+    if (directText) {
+      console.error('DEBUG: Using direct textContent:', directText);
+      return directText;
+    }
+
+    // Strategy 3: Fallback - look for any non-empty text node
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => {
+        return node.textContent?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      },
+    });
+
+    const textNode = walker.nextNode();
+    if (textNode && textNode.textContent?.trim()) {
+      const fallbackName = textNode.textContent.trim();
+      console.error('DEBUG: Using fallback text node:', fallbackName);
+      return fallbackName;
+    }
+
+    console.error('DEBUG: No name could be extracted from element');
+    return '';
   }
 
   /**
