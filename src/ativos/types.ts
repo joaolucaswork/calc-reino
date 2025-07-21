@@ -17,6 +17,10 @@ export interface SortableConfig {
   fallbackClass: string;
   fallbackOnBody: boolean;
   swapThreshold: number;
+  // Enhanced options for better clone behavior
+  removeCloneOnHide?: boolean;
+  dragoverBubble?: boolean;
+  emptyInsertThreshold?: number;
 }
 
 export interface AtivosManagerOptions {

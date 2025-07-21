@@ -2,26 +2,36 @@
  * Ativos Module
  *
  * Manages drag and drop functionality for assets using SortableJS
- * Provides dynamic counter updates and asset management
+ * Optimized for performance with minimal animations
  */
 
-// Import styles
-import './styles/ativos.css';
+// Import lightweight styles for better performance
+import './styles/lightweight-ativos.css';
 
+import { ContextMenuService } from './context-menu';
 import { AtivosCounter } from './counter';
-// Import core functionality
-import { AtivosManager } from './sortable-manager';
+import { DropAreaPersistence } from './drop-area-persistence';
+// Use enhanced functionality with simplified animations
+import { EnhancedAtivosManager } from './enhanced-sortable-manager';
+import { NotificationService } from './notification-service';
 import { WebflowAtivosInit } from './webflow-integration';
 
 // Import configuration and types
 export * from './config';
 export * from './types';
 
-// Auto-initialize for Webflow
+// Auto-initialize for Webflow with enhanced animations
 WebflowAtivosInit.initialize();
 
-// Export public API
-export { AtivosCounter, AtivosManager, WebflowAtivosInit };
+// Export enhanced API
+export {
+  AtivosCounter,
+  EnhancedAtivosManager as AtivosManager,
+  ContextMenuService,
+  DropAreaPersistence,
+  NotificationService,
+  WebflowAtivosInit,
+};
 
 // Export utilities for advanced usage
 export const ativosUtils = {
@@ -43,7 +53,7 @@ export const ativosUtils = {
    * Initialize sortable on a specific container
    */
   initializeSortable: (container: HTMLElement): void => {
-    AtivosManager.initializeSortable(container);
+    EnhancedAtivosManager.initializeSortable(container);
   },
 
   /**
@@ -59,7 +69,7 @@ export const ativosUtils = {
    * Clean all items and return to source (for clean button)
    */
   cleanAllItems: (): void => {
-    AtivosManager.cleanAllItems();
+    EnhancedAtivosManager.cleanAllItems();
   },
 
   /**

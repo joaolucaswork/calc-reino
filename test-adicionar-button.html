@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test - Adicionar Button & Real-time Updates</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .ativos_main-list {
+        min-height: 200px;
+        border: 2px solid #ccc;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      .ativos_main_drop_area {
+        min-height: 200px;
+        border: 2px dashed #007bff;
+        padding: 15px;
+        background-color: #e7f3ff;
+        border-radius: 8px;
+      }
+
+      .w-dyn-item {
+        padding: 10px 15px;
+        margin: 5px 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .w-dyn-item:hover {
+        background-color: #f0f0f0;
+      }
+
+      .counter_ativos {
+        font-weight: bold;
+        color: #007bff;
+        font-size: 18px;
+      }
+
+      .add_ativo_manual {
+        margin: 15px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+
+      .add_ativo_manual.desativado {
+        display: none;
+      }
+
+      #adicionarNAtivo {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        width: 200px;
+      }
+
+      #adicionarAtivo {
+        padding: 8px 16px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+
+      #adicionarAtivo:hover {
+        background-color: #218838;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .instructions {
+        background-color: #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .instructions h3 {
+        margin-top: 0;
+        color: #495057;
+      }
+
+      .instructions ul {
+        margin-bottom: 0;
+      }
+
+      .test-status {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+      }
+
+      /* Webflow button styling and combo class */
+      #adicionar_ativo_novo {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-left: 8px;
+      }
+
+      #adicionar_ativo_novo:hover:not(.desativado) {
+        background-color: #0056b3;
+      }
+
+      #adicionar_ativo_novo.desativado {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test: Complete Asset Management System</h1>
+
+    <div class="instructions">
+      <h3>All Features Test:</h3>
+      <ul>
+        <li><strong>✅ Real-time Updates:</strong> New items appear immediately in source list</li>
+        <li>
+          <strong>✅ Webflow Button Integration:</strong> Button state toggles with input content
+        </li>
+        <li>
+          <strong>✅ Synchronized Toggles:</strong> Both toggle systems work together consistently
+        </li>
+        <li>
+          <strong>✅ Fixed Persistence:</strong> Both custom AND original assets now persist
+          correctly in drop area
+        </li>
+        <li>
+          <strong>✅ Smart Notifications:</strong> Success/error notifications with duplicate
+          prevention
+        </li>
+        <li><strong>✅ Context Menu:</strong> Right-click custom assets to delete them</li>
+        <li>
+          <strong>✅ Click-to-Add:</strong> Click any source item to instantly move it to drop area
+        </li>
+        <li><strong>✅ Clean Console:</strong> Reduced debug logging for better performance</li>
+        <li>
+          <strong>Test All:</strong> Create custom assets, click/drag items, right-click to delete,
+          refresh page
+        </li>
+      </ul>
+    </div>
+
+    <div class="counter_ativos">Items in Drop Area: (0)</div>
+
+    <div class="container">
+      <div>
+        <div class="section-title">📋 Source List (Draggable Items)</div>
+        <div class="ativos_main-list">
+          <!-- Template item (hidden, used for cloning) -->
+          <div id="pillAtivo" style="display: none">
+            <span>Template Item</span>
+          </div>
+
+          <!-- Existing items -->
+          <div class="w-dyn-item" data-ativo-item="true">
+            <span>Existing Item 1</span>
+          </div>
+          <div class="w-dyn-item" data-ativo-item="true">
+            <span>Existing Item 2</span>
+          </div>
+
+          <!-- Add new asset button -->
+          <button id="adicionarAtivo">Mostrar campo para adicionar</button>
+
+          <!-- Add new asset input (initially hidden) -->
+          <div class="add_ativo_manual desativado">
+            <input type="text" id="adicionarNAtivo" placeholder="Digite o nome do novo ativo..." />
+            <button id="adicionar_ativo_novo" class="desativado">Adicionar</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">🎯 Drop Area (Final Destination)</div>
+        <div class="ativos_main_drop_area">
+          <p style="color: #666; font-style: italic">Drag items here from the source list</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-status">
+      <strong>Complete Feature Test:</strong>
+      <br />1. <strong>Synchronized Toggles:</strong> Both toggle systems work together consistently
+      <br />2. <strong>Button State:</strong> Input field and button reset properly when toggled
+      <br />3. <strong>Click-to-Add:</strong> Click any source item - instantly moves to drop area
+      <br />4. <strong>Drag-and-Drop:</strong> Still works alongside click functionality <br />5.
+      <strong>Persistence:</strong> Both original and custom items persist after refresh <br />6.
+      <strong>Context Menu:</strong> Right-click custom assets to delete them <br />7.
+      <strong>Notifications:</strong> Success/error messages for all actions <br />8.
+      <strong>Clean All:</strong> Clears everything including persistence
+    </div>
+
+    <!-- Load the built JavaScript -->
+    <script src="./dist/index.js"></script>
+
+    <script>
+      // Additional test logging
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log('Test page loaded');
+
+        // Log when items are added
+        const observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach(function (node) {
+                if (
+                  node.nodeType === 1 &&
+                  node.classList &&
+                  node.classList.contains('w-dyn-item')
+                ) {
+                  console.log('✅ New item added to DOM:', node.textContent);
+                }
+              });
+            }
+          });
+        });
+
+        observer.observe(document.querySelector('.ativos_main-list'), {
+          childList: true,
+          subtree: true,
+        });
+
+        // Log counter updates
+        document.addEventListener('counterUpdate', function (e) {
+          console.log('📊 Counter updated:', e.detail.count);
+        });
+      });
+    </script>
+  </body>
+</html>
