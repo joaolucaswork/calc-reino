@@ -59,29 +59,29 @@ test.describe('Currency Formatter', () => {
   test('should format currency input correctly', async ({ page }) => {
     const priceInput = page.locator('#price');
 
-    // Type a number
-    await priceInput.fill('1234.56');
+    // Type a number (digits only, treated as cents)
+    await priceInput.fill('1234');
 
     // Wait for formatting to apply
     await page.waitForTimeout(100);
 
-    // Check if the value is formatted correctly
+    // Check if the value is formatted correctly with R$ symbol first
     const value = await priceInput.inputValue();
-    expect(value).toBe('1.234,56');
+    expect(value).toBe('R$ 12,34'); // jQuery approach: 1234 cents = R$ 12,34
   });
 
   test('should handle decimal input correctly', async ({ page }) => {
     const priceInput = page.locator('#price');
 
-    // Type a decimal number
+    // Type a decimal number (commas and dots are stripped, only digits remain)
     await priceInput.fill('1234,56');
 
     // Wait for formatting to apply
     await page.waitForTimeout(100);
 
-    // Check if the value is formatted correctly
+    // Check if the value is formatted correctly with R$ symbol
     const value = await priceInput.inputValue();
-    expect(value).toBe('1.234,56');
+    expect(value).toBe('R$ 1.234,56'); // Numbers only: 123456 cents = R$ 1234,56
   });
 
   test('should handle large numbers correctly', async ({ page }) => {
@@ -135,9 +135,25 @@ test.describe('Currency Formatter', () => {
     // Wait for formatting to apply
     await page.waitForTimeout(100);
 
-    // Check if the value is empty (zero is treated as empty)
+    // Check if the value shows R$ 0,00 (new jQuery approach)
     const value = await priceInput.inputValue();
-    expect(value).toBe('');
+    expect(value).toBe('R$ 0,00');
+  });
+
+  test('should handle trailing zeros correctly', async ({ page }) => {
+    const priceInput = page.locator('#price');
+
+    // Test case: typing "120" should result in R$ 1,20 (120 cents)
+    await priceInput.fill('120');
+    await page.waitForTimeout(100);
+    let value = await priceInput.inputValue();
+    expect(value).toBe('R$ 1,20');
+
+    // Test case: typing "12000" should result in R$ 120,00 (12000 cents)
+    await priceInput.fill('12000');
+    await page.waitForTimeout(100);
+    value = await priceInput.inputValue();
+    expect(value).toBe('R$ 120,00');
   });
 
   test('should not format regular inputs', async ({ page }) => {

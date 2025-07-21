@@ -8,17 +8,15 @@ A função de currency foi reorganizada seguindo a estrutura recomendada no READ
 
 ```
 src/
-├── currency/                    # Módulo principal
+├── currency/                    # Módulo principal consolidado
 │   ├── index.ts                # Ponto de entrada principal
-│   ├── formatter.ts            # Classe CurrencyFormatter
+│   ├── formatter.ts            # Classe CurrencyFormatter (simplificada)
 │   ├── webflow-integration.ts  # Integração com Webflow
-│   ├── config.ts               # Configurações
+│   ├── config.ts               # Configurações centralizadas
 │   ├── types.ts                # Definições TypeScript
 │   ├── README.md               # Documentação do módulo
 │   └── styles/
 │       └── currency.css        # Estilos CSS
-├── utils/
-│   └── currency.ts             # Utilitários de moeda
 ├── index.ts                    # Entry point principal
 └── tests/
     └── currency-formatter.spec.ts # Testes
@@ -49,6 +47,22 @@ const ENTRY_POINTS = [
 3. **Manutenibilidade**: Código organizado e fácil de manter
 4. **Escalabilidade**: Estrutura preparada para novos módulos
 5. **Padrão Finsweet**: Segue as diretrizes do template
+
+### ⚡ Simplificação Implementada (2024)
+
+**Consolidação em torno da biblioteca currency.js:**
+
+- ✅ **Removido**: `src/utils/currency.ts` (código duplicado)
+- ✅ **Consolidado**: Configurações centralizadas em `config.ts`
+- ✅ **Simplificado**: `formatter.ts` usa configuração única
+- ✅ **Reduzido**: ~200 linhas de código duplicado eliminadas
+- ✅ **Mantido**: Toda funcionalidade existente preservada
+
+**Benefícios da simplificação:**
+- Menor bundle size
+- Comportamento de formatação consistente
+- Única fonte de verdade para configurações
+- Manutenção mais fácil
 
 ### 📋 Como Usar
 

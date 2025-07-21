@@ -1,164 +1,35 @@
 /**
- * Currency Formatter Styles for Webflow
- * 
- * This CSS file provides styling for currency-formatted inputs
- * that maintains the "R$" symbol in a fixed position regardless of value length
+ * Currency Formatter Styles for Webflow - jQuery Approach
+ *
+ * Clean CSS for currency inputs where R$ symbol is included in the value
+ * No pseudo-elements needed - symbol is part of the formatted text
  */
 
-/* Base currency input styling */
+/* Base currency input styling - jQuery approach */
 .currency-input {
-  position: relative;
-  padding-left: 45px !important;
-  text-align: left !important;
+  text-align: right !important; /* Right-aligned like jQuery version */
+  font-weight: 500 !important;
   font-feature-settings: 'tnum' 1; /* Use tabular numbers for better alignment */
   font-variant-numeric: tabular-nums;
 }
 
-/* Currency symbol using pseudo-element */
-.currency-input::before {
-  content: 'R$ ';
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-weight: 500;
-  pointer-events: none;
-  z-index: 1;
-  font-feature-settings: 'tnum' 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Alternative container-based approach for better browser support */
-.currency-input-container {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.currency-input-container .currency-symbol {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-weight: 500;
-  pointer-events: none;
-  z-index: 2;
-  font-feature-settings: 'tnum' 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Input focus states */
-.currency-input:focus::before,
-.currency-input-container:focus-within .currency-symbol {
-  color: #333;
-}
-
 /* Webflow form styling compatibility */
 .w-input.currency-input {
-  padding-left: 45px !important;
-}
-
-.w-input.currency-input::before {
-  left: 12px;
+  text-align: right !important;
+  font-weight: 500 !important;
 }
 
 /* Responsive design for mobile devices */
 @media (max-width: 479px) {
   .currency-input {
-    padding-left: 40px !important;
-  }
-
-  .currency-input::before,
-  .currency-input-container .currency-symbol {
-    left: 10px;
     font-size: 14px;
-  }
-}
-
-/* Tablet adjustments */
-@media (max-width: 767px) {
-  .currency-input {
-    padding-left: 42px !important;
-  }
-
-  .currency-input::before,
-  .currency-input-container .currency-symbol {
-    left: 11px;
   }
 }
 
 /* Better support for different Webflow form styles */
 .w-form .currency-input {
-  padding-left: 45px !important;
-}
-
-.w-form .currency-input::before {
-  left: 12px;
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .currency-input::before,
-  .currency-input-container .currency-symbol {
-    color: #ccc;
-  }
-
-  .currency-input:focus::before,
-  .currency-input-container:focus-within .currency-symbol {
-    color: #fff;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .currency-input::before,
-  .currency-input-container .currency-symbol {
-    color: #000;
-    font-weight: 600;
-  }
-}
-
-/* RTL support (if needed) */
-[dir='rtl'] .currency-input {
-  padding-right: 45px !important;
-  padding-left: 12px !important;
   text-align: right !important;
-}
-
-[dir='rtl'] .currency-input::before,
-[dir='rtl'] .currency-input-container .currency-symbol {
-  left: auto;
-  right: 12px;
-}
-
-/* Custom styling for different input states */
-.currency-input:disabled::before,
-.currency-input-container:has(.currency-input:disabled) .currency-symbol {
-  color: #999;
-  opacity: 0.6;
-}
-
-.currency-input:invalid::before,
-.currency-input-container:has(.currency-input:invalid) .currency-symbol {
-  color: #e74c3c;
-}
-
-/* Animation for smooth transitions */
-.currency-input::before,
-.currency-input-container .currency-symbol {
-  transition: color 0.2s ease;
-}
-
-/* Ensure proper stacking context */
-.currency-input {
-  z-index: 1;
-}
-
-.currency-input::before,
-.currency-input-container .currency-symbol {
-  z-index: 2;
+  font-weight: 500 !important;
 }
 
 /* Accessibility improvements */
@@ -168,8 +39,7 @@
 
 /* Print styles */
 @media print {
-  .currency-input::before,
-  .currency-input-container .currency-symbol {
+  .currency-input {
     color: #000 !important;
   }
 }

@@ -8,9 +8,6 @@ export * from './currency';
 // Export the ativos module for advanced usage
 export * from './ativos';
 
-// Export currency utilities
-export * from './utils/currency';
-
 // The currency formatter will automatically initialize when this script loads
 // Any input with data-currency="true" will be automatically formatted as Brazilian Real (BRL)
 

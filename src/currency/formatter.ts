@@ -10,16 +10,6 @@ export class CurrencyFormatter {
   private initialized = false;
   private formattedInputs = new WeakMap<HTMLInputElement, boolean>();
 
-  // Brazilian Real formatting configuration
-  private readonly currencyConfig = {
-    symbol: 'R$ ',
-    decimal: ',',
-    separator: '.',
-    precision: 2,
-    pattern: '# !',
-    negativePattern: '- # !',
-  };
-
   /**
    * Singleton pattern to ensure only one instance exists
    */
@@ -94,7 +84,19 @@ export class CurrencyFormatter {
   private formatInput(input: HTMLInputElement): void {
     if (this.formattedInputs.has(input)) return;
 
+    // Check if input is already handled by another currency system
+    if (
+      input.dataset.component === 'currency-input' ||
+      input.classList.contains('currency-input-wrapper')
+    ) {
+      // Skip inputs already handled by other currency systems
+      return;
+    }
+
     this.formattedInputs.set(input, true);
+
+    // Mark this input as handled by this formatter
+    input.dataset.currencyFormatter = 'main';
 
     // Set up the input styling for fixed currency symbol
     this.setupInputStyling(input);
@@ -109,87 +111,20 @@ export class CurrencyFormatter {
   }
 
   /**
-   * Setup CSS styling for fixed currency symbol
+   * Setup CSS styling - jQuery approach (simple, no pseudo-elements)
    */
   private setupInputStyling(input: HTMLInputElement): void {
     // Add a class for styling
     input.classList.add('currency-input');
 
-    // Apply inline styles for immediate effect
-    input.style.paddingLeft = '45px';
-    input.style.textAlign = 'left';
+    // Apply jQuery-style inline styles
+    input.style.textAlign = 'right'; // Right-aligned like jQuery version
+    input.style.fontWeight = '500';
 
-    // Create or update the pseudo-element style
-    this.injectCurrencyStyles();
+    // Set placeholder to match jQuery version
+    input.placeholder = 'R$ 0.000,000,00';
 
-    // Set placeholder if not already set
-    if (!input.placeholder) {
-      input.placeholder = '0,00';
-    }
-  }
-
-  /**
-   * Inject CSS styles for currency inputs
-   */
-  private injectCurrencyStyles(): void {
-    const styleId = 'currency-formatter-styles';
-    let styleElement = document.getElementById(styleId) as HTMLStyleElement;
-
-    if (!styleElement) {
-      styleElement = document.createElement('style');
-      styleElement.id = styleId;
-      document.head.appendChild(styleElement);
-    }
-
-    styleElement.textContent = `
-      .currency-input {
-        position: relative;
-        padding-left: 45px !important;
-        text-align: left !important;
-      }
-      
-      .currency-input::before {
-        content: "R$ ";
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #666;
-        font-weight: 500;
-        pointer-events: none;
-        z-index: 1;
-      }
-      
-      .currency-input-container {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-      }
-      
-      .currency-symbol {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #666;
-        font-weight: 500;
-        pointer-events: none;
-        z-index: 2;
-      }
-      
-      /* Responsive adjustments */
-      @media (max-width: 479px) {
-        .currency-input {
-          padding-left: 40px !important;
-        }
-        
-        .currency-input::before,
-        .currency-symbol {
-          left: 10px;
-          font-size: 14px;
-        }
-      }
-    `;
+    // No pseudo-element CSS injection needed - symbol is in the value
   }
 
   /**
@@ -224,37 +159,36 @@ export class CurrencyFormatter {
   }
 
   /**
-   * Handle input events
+   * Handle input events - simplified approach
    */
   private handleInput(input: HTMLInputElement): void {
     const cursorPosition = input.selectionStart || 0;
     const oldValue = input.value;
+    const oldLength = oldValue.length;
 
+    // Update the input value with formatting
     this.updateInputValue(input, input.value);
 
-    // Restore cursor position
-    this.restoreCursorPosition(input, cursorPosition, oldValue);
+    // Restore cursor position with jQuery approach
+    this.restoreCursorPosition(input, cursorPosition, oldLength);
   }
 
   /**
-   * Handle focus events
+   * Handle focus events - jQuery approach (minimal interference)
    */
-  private handleFocus(input: HTMLInputElement): void {
-    // Select all text except the currency symbol area
-    setTimeout(() => {
-      if (input.value && input.value.length > 0) {
-        input.setSelectionRange(0, input.value.length);
-      }
-    }, 0);
+  private handleFocus(_input: HTMLInputElement): void {
+    // jQuery version doesn't interfere with focus - let natural cursor positioning work
+    // No special handling needed
   }
 
   /**
-   * Handle blur events
+   * Handle blur events - jQuery approach
    */
   private handleBlur(input: HTMLInputElement): void {
-    // Ensure proper formatting on blur
-    if (input.value) {
-      this.updateInputValue(input, input.value);
+    // jQuery approach: only format if R$ is missing
+    const { value } = input;
+    if (value && !value.includes('R$')) {
+      this.updateInputValue(input, value);
     }
   }
 
@@ -266,21 +200,22 @@ export class CurrencyFormatter {
       // Clean the input value
       const cleanValue = this.cleanValue(value);
 
-      // If empty, clear the input
-      if (cleanValue === '' || cleanValue === '0') {
+      // If completely empty (no input at all), clear the input
+      if (cleanValue === '' && value.trim() === '') {
         input.value = '';
         this.setHiddenValue(input, '0');
         return;
       }
 
-      // Format the value
+      // Format the value (handles zeros and empty values properly)
       const formattedValue = this.formatValue(cleanValue);
 
       // Update the input
       input.value = formattedValue;
 
       // Store the numeric value for form submission
-      this.setHiddenValue(input, cleanValue);
+      const numericValue = cleanValue === '' ? '0' : cleanValue;
+      this.setHiddenValue(input, numericValue);
     } catch (error) {
       console.error('Currency formatting error:', error);
       // Fallback to original value if formatting fails
@@ -289,40 +224,57 @@ export class CurrencyFormatter {
   }
 
   /**
-   * Clean the input value by removing non-numeric characters
+   * Clean the input value - jQuery approach (extract only digits)
    */
   private cleanValue(value: string): string {
     if (!value) return '';
 
-    // Remove currency symbols, spaces, and non-numeric characters except decimal separators
-    let cleaned = value.replace(/[^\d,.-]/g, '');
-
-    // Handle Brazilian decimal format (comma as decimal separator)
-    // Convert comma to dot for processing
-    cleaned = cleaned.replace(',', '.');
-
-    // Remove extra dots, keeping only the last one
-    const parts = cleaned.split('.');
-    if (parts.length > 2) {
-      cleaned = parts.slice(0, -1).join('') + '.' + parts[parts.length - 1];
-    }
-
-    // Ensure valid number format
-    const numericValue = parseFloat(cleaned);
-    return isNaN(numericValue) ? '' : numericValue.toString();
+    // jQuery approach: extract only digits, treat as cents
+    // This ensures consistency with formatValue logic
+    return value.replace(/[^\d]/g, '');
   }
 
   /**
-   * Format value using currency.js
+   * Format value using currency.js - jQuery approach with symbol included
    */
   private formatValue(value: string): string {
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) return '';
+    // Extract only numbers from input
+    const numeros = String(value).replace(/[^\d]/g, '');
 
-    const formatted = currency(numericValue, this.currencyConfig);
+    // Handle empty input - return R$ 0,00
+    if (!numeros) {
+      return 'R$ 0,00';
+    }
 
-    // Remove the symbol since we display it separately
-    return formatted.format().replace('R$ ', '');
+    // Handle single zero or all zeros - return R$ 0,00
+    if (parseInt(numeros, 10) === 0) {
+      return 'R$ 0,00';
+    }
+
+    // Convert to cents then to reais (like jQuery version)
+    const centavos = parseInt(numeros, 10);
+    const reais = centavos / 100;
+
+    try {
+      // Use currency.js with correct TypeScript configuration
+      const currencyConfig = {
+        symbol: 'R$ ',
+        precision: 2,
+        decimal: ',',
+        separator: '.',
+        pattern: '! #', // Symbol first, then value (R$ 123,45)
+        negativePattern: '- ! #', // Negative: - R$ 123,45
+      };
+
+      return currency(reais, currencyConfig).format();
+    } catch (error) {
+      console.error('Currency.js error, using fallback:', error);
+      // Fallback to native formatting
+      return reais.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
+    }
   }
 
   /**
@@ -348,22 +300,30 @@ export class CurrencyFormatter {
   }
 
   /**
-   * Restore cursor position after formatting
+   * Restore cursor position after formatting - jQuery approach (simple and effective)
    */
-  private restoreCursorPosition(input: HTMLInputElement, position: number, oldValue: string): void {
+  private restoreCursorPosition(
+    input: HTMLInputElement,
+    position: number,
+    oldLength: number
+  ): void {
     const newValue = input.value;
+    const newLength = newValue.length;
 
-    // If the value didn't change, keep the same position
-    if (oldValue === newValue) {
-      input.setSelectionRange(position, position);
-      return;
-    }
+    // Calculate new position based on length difference (jQuery approach)
+    const lengthDiff = newLength - oldLength;
+    let newPosition = position + lengthDiff;
 
-    // Calculate new position based on the difference in length
-    const lengthDiff = newValue.length - oldValue.length;
-    const newPosition = Math.max(0, Math.min(position + lengthDiff, newValue.length));
+    // Ensure cursor is after "R$ " (minimum position 3)
+    if (newPosition < 3) newPosition = 3;
 
-    input.setSelectionRange(newPosition, newPosition);
+    // Ensure position is within bounds
+    if (newPosition > newLength) newPosition = newLength;
+
+    // Use setTimeout to ensure the DOM has updated (like jQuery version)
+    setTimeout(() => {
+      input.setSelectionRange(newPosition, newPosition);
+    }, 0);
   }
 
   /**
