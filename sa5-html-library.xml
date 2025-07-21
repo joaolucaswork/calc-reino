@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sa5_html_library>
+    <metadata>
+        <title>SA5 HTML Library - Complete Documentation</title>
+        <description>The most comprehensive library in SA5 with a huge range of HTML manipulation tools</description>
+        <library_name>SA5 HTML</library_name>
+        <status>stable</status>
+        <source_url>https://attr.sygnal.com/sa5-html/about</source_url>
+        <version>v5</version>
+        <last_updated>2024-06-27</last_updated>
+    </metadata>
+
+    <overview>
+        <purpose>A huge range of page-modification capabilities</purpose>
+        <description>This library contains a huge range of tools that involve HTML manipulation. Because there is such a huge range of functionality, it's better to read through the individual features you need to see their capabilities and setup options.</description>
+        
+        <important_notes>
+            <note date="2024-05-18">The Layout module has been relocated from the HTML Lib to a new Layout-specific Lib. If you need this feature, make certain to import that library.</note>
+        </important_notes>
+    </overview>
+
+    <quick_start>
+        <installation>
+            <description>All of SA5's HTML features are now consolidated into a single library, so you only need one library include.</description>
+            
+            <script_installation>
+                <location>Add to site wide custom code HEAD area of your site (or page-specific custom code if only using on specific pages)</location>
+                
+                <standard_installation>
+                    <css_link>
+                        <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.8.1/dist/css/webflow-html.css">]]>
+                    </css_link>
+                    <js_script>
+                        <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.8.1/dist/nocode/webflow-html.js"></script>]]>
+                    </js_script>
+                </standard_installation>
+
+                <developer_installation>
+                    <description>For SA5 library developers, use the extended syntax to support Sygnal DevProxy</description>
+                    <css_link>
+                        <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.8.1/dist/css/webflow-html.css" dev-href="http://127.0.0.1:4000/dist/css/webflow-html.css" devproxy-group="sa5">]]>
+                    </css_link>
+                    <js_script>
+                        <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.8.1/dist/nocode/webflow-html.js" dev-src="http://127.0.0.1:4000/dist/nocode/webflow-html.js" devproxy-group="sa5"></script>]]>
+                    </js_script>
+                </developer_installation>
+            </script_installation>
+
+            <next_steps>Add the custom attributes for the features you need, described in each feature separately.</next_steps>
+        </installation>
+    </quick_start>
+
+    <features>
+        <feature name="Dynamic Attributes" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-html/sa5-dynamic-attributes</url>
+            <tagline>Create any custom attribute, even if it's reserved by Webflow</tagline>
+            
+            <description>
+                SA5's Dynamic Attributes feature overcomes Webflow's limitations by allowing you to create proxy attributes that are then applied to the page once the page has loaded. This addresses two key limitations:
+                1. Reserved attributes - many important attribute names are reserved to protect novice web designers
+                2. ECommerce - Collection pages and collection lists bound to ECommerce Product and Categories do not support attribute data binding
+            </description>
+
+            <use_cases>
+                <category name="Forms">
+                    <use_case>
+                        <title>Initialize form field values</title>
+                        <demo_url>https://sa5-html.webflow.io/demo/sa5-dynamic-attributes</demo_url>
+                        <description>Initialize form field values on INPUTs, TEXTAREAs, SELECTs, CHECKBOXes and other elements with data from a CMS collection item or component property</description>
+                        <examples>
+                            <example>Use `x:value` = (your value) to initialize an INPUT, TEXTBOX, or SELECT element from a CMS collection item</example>
+                            <example>Use `x:checked` = (boolean value) to initialize a checkbox element</example>
+                        </examples>
+                    </use_case>
+                    <use_case>
+                        <title>Special field configuration</title>
+                        <examples>
+                            <example>Use `x:type` = `date` on an INPUT element to change it to a date type</example>
+                        </examples>
+                    </use_case>
+                    <use_case>
+                        <title>Hidden form fields</title>
+                        <description>Set hidden form fields to capture data silently, such as the Collection page you're on when the form is submitted</description>
+                    </use_case>
+                </category>
+                
+                <category name="Navigation">
+                    <use_case>
+                        <title>CMS-driven in-page navigation</title>
+                        <demo_url>https://sa5-html.webflow.io/demo/sa5-dynamic-attributes-navigation</demo_url>
+                    </use_case>
+                </category>
+
+                <category name="Element Behavior">
+                    <use_case>
+                        <title>Dynamic behavior</title>
+                        <description>Such as onclick events</description>
+                    </use_case>
+                </category>
+
+                <category name="SA5 Library Support">
+                    <use_case>
+                        <title>Supporting other SA5 libraries</title>
+                        <description>Such as CMS Lightbox Captions and Groups, and making these work with ECommerce content</description>
+                    </use_case>
+                </category>
+            </use_cases>
+
+            <implementation>
+                <method name="Custom Attributes" complexity="simple">
+                    <description>Any attribute created with an `x:` prefix on the name is specially recognized as an SA5 Dynamic Attribute. It will be processed, and the un-prefixed attribute will then be set to that value.</description>
+                    
+                    <steps>
+                        <step number="1">Add the SA5 HTML library to your site</step>
+                        <step number="2">Apply `x:` prefixed custom attributes to any elements</step>
+                        <step number="3">Data-bind the value to CMS fields or component properties where needed</step>
+                    </steps>
+
+                    <attribute_types>
+                        <attribute_type name="x:*">
+                            <description>Create a custom attribute beginning with `x:` on any element. Set the value you want, and bind it to a CMS field or component property if needed.</description>
+                            <example>A custom attribute named `x:value` would override the `value` attribute</example>
+                        </attribute_type>
+
+                        <attribute_type name="x:*:pre">
+                            <description>Attributes that are also suffixed with `:pre` are prepended to the attribute value</description>
+                        </attribute_type>
+
+                        <attribute_type name="x:*:post">
+                            <description>Attributes that are also suffixed with `:post` are appended to the attribute value</description>
+                        </attribute_type>
+                    </attribute_types>
+
+                    <legacy_note>
+                        In previous versions, SA5 also supported dynamic attribute prefixes of `x-` however we've moved away from that to avoid conflict with Alpine.js which also uses the `x-` prefix on attributes. Currently this is still supported but considered obsolete.
+                    </legacy_note>
+                </method>
+
+                <method name="Custom Embeds" complexity="intermediate">
+                    <description>Webflow's embed element can be used to contain a special `&lt;script&gt;` element, which will be processed and then apply the attribute value to the specified element. As an embed, this is more compatible with ECommerce data-binding.</description>
+                    
+                    <embed_structure>
+                        <script_template>
+                            <![CDATA[<script type="application/sa5+json" handler="DynamicAttribute">
+{
+  "@context": "https://attr.sygnal.com",
+  "@type": "DynamicAttribute", 
+  "@version": "0.1",
+  "name": "style",
+  "target": "parent",
+  "value": "font-weight: bold;"
+}
+</script>]]>
+                        </script_template>
+
+                        <advanced_example>
+                            <![CDATA[<script type="application/sa5+json" handler="DynamicAttribute">
+{
+  "@context": "https://attr.sygnal.com",
+  "@type": "DynamicAttribute",
+  "@version": "0.1", 
+  "name": "style",
+  "target": "parent",
+  "value": "font-weight: bold;",
+  "pre": "font-style: italic;",
+  "post": "color: blue;"
+}
+</script>]]>
+                        </advanced_example>
+                    </embed_structure>
+
+                    <embed_parameters>
+                        <parameter name="target" required="true">
+                            <description>Can be `parent`, `prev`, or `next`, and identifies the element that the attribute will be applied to</description>
+                        </parameter>
+                        <parameter name="name" required="true">
+                            <description>Indicates the name of the attribute to create or replace</description>
+                        </parameter>
+                        <parameter name="value" required="false">
+                            <description>Indicates the value to set</description>
+                        </parameter>
+                        <parameter name="pre" required="false">
+                            <description>Prefixes the existing or replaced value</description>
+                        </parameter>
+                        <parameter name="post" required="false">
+                            <description>Suffixes the existing or replaced value</description>
+                        </parameter>
+                    </embed_parameters>
+
+                    <embed_requirements>
+                        <requirement>Both the script `type` and `handler` are essential</requirement>
+                        <requirement>Must be placed in an Embed element</requirement>
+                        <requirement>Must be positioned relative to the element you want the attribute applied to, either as a child or as an adjacent sibling</requirement>
+                    </embed_requirements>
+                </method>
+            </implementation>
+
+            <special_element_handling>
+                <element_type name="Textarea Elements">
+                    <description>Just like an input element, you can use the `x:value` attribute to initialize the content of a Textarea.</description>
+                    <technical_note>In browsers, Textarea elements behave differently than Input elements. You can initialize them with a value attribute before page load, but if the attribute is set later by script, that value will not be applied. We set the value property as well to ensure it's applied.</technical_note>
+                </element_type>
+
+                <element_type name="Checkbox Elements">
+                    <description>Use the `x:checked` attribute directly on the Checkbox element itself. We'll evaluate it as "true" or "false", and set or remove the `checked` attribute accordingly.</description>
+                    <usage>For Input elements with type=checkbox</usage>
+                </element_type>
+
+                <element_type name="Select Elements">
+                    <description>Use the `x:value` attribute. We'll select the matching option, by value, if it exists.</description>
+                    <important_note>Select options have both a Name and a Value. It's the Value that is matched, not the Name. Ensure your Values are set correctly.</important_note>
+                </element_type>
+            </special_element_handling>
+
+            <limitations>
+                <limitation>
+                    <description>As of 2024-Jun-03, Webflow does not yet support attribute binding to switch (boolean) field types or to select (option) field types. In a pinch you could use CMS text fields instead.</description>
+                </limitation>
+            </limitations>
+
+            <reserved_attributes>
+                <description>Here's a partial list of reserved attribute names that cannot be used as custom attributes in Webflow</description>
+                <attribute_list>abbr, accept, action, align, alt, autofocus, autoplay, bgcolor, border, char, charoff, charset, cite, class, cols, colspan, content, controls, coords, crossorigin, datetime, default, disabled, download, for, form, formaction, formenctype, formmethod, formnovalidate, formtarget, frame, group, headers, height, high, href, hspace, icon, id, ismap, kind, label, list, loop, low, manifest, media, method, multiple, muted, name, optimum, placeholder, poster, preload, radiogroup, readonly, required, reversed, rows, rowspan, sandbox, scheme, scope, scoped, scrolling, seamless, selected, shape, size, sizes, src, srcdoc, srclang, style, type, value, vspace, width, wrap, xmlns, onblur, onclick, ondblclick, ondrag, ondrop, onerror, onfocus, onfocusin, onfocusout, onhelp, oninput, onkeydown, onkeypress, onkeyup, onload, onmousedown, onmouseenter, onmouseleave, onmousemove, onmouseout, onmouseover, onmouseup, onmousewheel, onpaste, onredo, onscroll, onsubmit, onundo</attribute_list>
+                <source>https://discourse.webflow.com/t/list-feature-availability-limits/23610</source>
+            </reserved_attributes>
+
+            <resources>
+                <resource>
+                    <title>Custom attributes | Webflow University</title>
+                    <url>https://university.webflow.com/lesson/custom-attributes</url>
+                </resource>
+                <resource>
+                    <title>Use CMS data in custom attributes | Webflow Features</title>
+                    <url>https://webflow.com/feature/use-cms-data-in-custom-attributes</url>
+                </resource>
+                <resource>
+                    <title>SA5 HTML Library - Webflow Cloneable</title>
+                    <url>https://webflow.com/made-in-webflow/website/sa5-html</url>
+                </resource>
+            </resources>
+        </feature>
+
+        <!-- Additional features would be documented here -->
+        <feature name="Truncate Text w/ Ellipses" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/truncate-text-w-ellipsis</url>
+            <description>Truncate text with ellipses functionality</description>
+        </feature>
+
+        <feature name="Advanced Element Sorting" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/advanced-element-sorting</url>
+            <description>Advanced sorting capabilities for elements</description>
+        </feature>
+
+        <feature name="Advanced Element Filtering" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/advanced-element-filtering</url>
+            <description>Advanced filtering capabilities for elements</description>
+        </feature>
+
+        <feature name="Encoded Email" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/encoded-email</url>
+            <description>Email encoding functionality</description>
+        </feature>
+
+        <feature name="Hide Section w/ Empty Collection Lists" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/hide-section-w-empty-collection-lists</url>
+            <description>Hide sections when collection lists are empty</description>
+        </feature>
+
+        <feature name="Numeric Sequencing" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/numeric-sequencing</url>
+            <description>Numeric sequencing functionality</description>
+        </feature>
+
+        <feature name="Download File" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/download-file</url>
+            <description>File download functionality</description>
+        </feature>
+
+        <feature name="Decode HTML" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/decode-html</url>
+            <description>HTML decoding functionality</description>
+        </feature>
+
+        <feature name="Markdown" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/markdown</url>
+            <description>Markdown processing functionality</description>
+        </feature>
+
+        <feature name="Breakpoints" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/breakpoints</url>
+            <description>Breakpoint handling functionality</description>
+        </feature>
+
+        <feature name="Limit Items by Breakpoint" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/limit-items-by-breakpoint</url>
+            <description>Limit items based on breakpoints</description>
+        </feature>
+
+        <feature name="Limit Items to Multiple-of" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/limit-items-to-multiple-of</url>
+            <description>Limit items to multiples functionality</description>
+        </feature>
+
+        <feature name="Scroll to Section" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/scroll-to-section</url>
+            <description>Scroll to section functionality</description>
+        </feature>
+
+        <feature name="Dynamic URLs" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/dynamic-urls</url>
+            <description>Dynamic URL functionality</description>
+        </feature>
+
+        <feature name="Transform" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/transform</url>
+            <description>Transform functionality</description>
+        </feature>
+
+        <feature name="Code Formatting" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/code-formatting</url>
+            <description>Code formatting functionality</description>
+        </feature>
+
+        <feature name="CMS Code Injection" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/cms-code-injection</url>
+            <description>CMS code injection functionality</description>
+        </feature>
+
+        <feature name="Responsive Tables" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/responsive-tables</url>
+            <description>Responsive tables functionality</description>
+        </feature>
+
+        <feature name="Text Formatting" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/text-formatting</url>
+            <description>Text formatting functionality</description>
+        </feature>
+
+        <feature name="Components" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/components</url>
+            <description>Components functionality</description>
+        </feature>
+
+        <feature name="Auto-Size IFRAMEs" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/auto-size-iframes</url>
+            <description>Auto-size iframes functionality</description>
+        </feature>
+
+        <feature name="Switch Case" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/switch-case</url>
+            <description>Switch case functionality</description>
+        </feature>
+
+        <feature name="Lazy Load" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/lazy-load</url>
+            <description>Lazy loading functionality</description>
+        </feature>
+
+        <feature name="Gallery" status="experimental">
+            <url>https://attr.sygnal.com/sa5-html/gallery</url>
+            <description>Gallery functionality</description>
+        </feature>
+
+        <feature name="Scroll Anchor" status="stable">
+            <url>https://attr.sygnal.com/sa5-html/scroll-anchor</url>
+            <description>Scroll anchor functionality</description>
+        </feature>
+    </features>
+</sa5_html_library>

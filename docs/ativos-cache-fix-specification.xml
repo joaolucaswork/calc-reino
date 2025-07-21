@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <metadata>
+    <title>Correção do Sistema de Cache para Itens Originais</title>
+    <version>1.0</version>
+    <date>2025-01-21</date>
+    <priority>HIGH</priority>
+    <estimated_effort>4-6 horas</estimated_effort>
+  </metadata>
+
+  <problem_statement>
+    <description>
+      Apenas itens criados pelo input são salvos em cache quando arrastados para a área de drop, 
+      mas itens originais da lista não são persistidos corretamente, causando perda de dados 
+      após recarregamento da página.
+    </description>
+    <impact>Experiência ruim do usuário e perda de estado da aplicação</impact>
+  </problem_statement>
+
+  <solution_overview>
+    <approach>
+      Unificar e fortalecer o sistema de identificação e persistência para garantir que 
+      todos os tipos de itens (originais e criados) sejam tratados de forma consistente.
+    </approach>
+  </solution_overview>
+
+  <implementation_tasks>
+    
+    <!-- TASK 1: Melhorar Identificação Precoce -->
+    <task id="1" priority="HIGH">
+      <title>Implementar Identificação Precoce de Itens Originais</title>
+      <file>src/ativos/enhanced-sortable-manager.ts</file>
+      <method>saveOriginalItemsData</method>
+      <description>
+        Modificar o método saveOriginalItemsData para garantir que todos os itens originais 
+        tenham IDs únicos desde a inicialização, antes mesmo de serem arrastados.
+      </description>
+      <changes>
+        <change type="modify">
+          <location>método saveOriginalItemsData (linha ~280)</location>
+          <action>
+            Adicionar lógica para atribuir data-original-id a itens que não possuem identificação:
+            
+            ```typescript
+            private static saveOriginalItemsData = (container: HTMLElement): void => {
+              const items = container.querySelectorAll&lt;HTMLElement&gt;('.w-dyn-item, [data-ativo-item]');
+              items.forEach((item, index) => {
+                // Only save original CMS items, not custom assets
+                if (!item.hasAttribute('data-new-asset')) {
+                  // NOVO: Garantir que o item tenha um ID único
+                  if (!item.getAttribute('data-original-id') && !item.getAttribute('data-id')) {
+                    const itemName = this.extractItemName(item);
+                    const uniqueId = `original-${itemName.toLowerCase().replace(/\s+/g, '-')}-${index}-${Date.now()}`;
+                    item.setAttribute('data-original-id', uniqueId);
+                    item.setAttribute('data-ativo-item', 'true');
+                    console.log('DEBUG: Assigned ID to original item:', uniqueId, itemName);
+                  }
+                  
+                  this.originalItemsData.set(item, {
+                    parent: container,
+                    index,
+                  });
+                }
+              });
+            };
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Verificar que todos os itens originais têm data-original-id após inicialização
+      </validation>
+    </task>
+
+    <!-- TASK 2: Fortalecer Lógica de Persistência -->
+    <task id="2" priority="HIGH">
+      <title>Melhorar Lógica de Salvamento na Persistência</title>
+      <file>src/ativos/drop-area-persistence.ts</file>
+      <method>saveDropAreaItems</method>
+      <description>
+        Fortalecer a lógica de identificação e salvamento para garantir que todos os itens 
+        sejam persistidos corretamente, independentemente de terem ID inicial.
+      </description>
+      <changes>
+        <change type="modify">
+          <location>método saveDropAreaItems (linha ~25-60)</location>
+          <action>
+            Substituir a lógica atual por uma versão mais robusta:
+            
+            ```typescript
+            public static saveDropAreaItems(): void {
+              try {
+                const dropArea = document.querySelector('.ativos_main_drop_area');
+                if (!dropArea) {
+                  console.error('DEBUG: Drop area not found for saving');
+                  return;
+                }
+
+                const items = Array.from(dropArea.querySelectorAll('.w-dyn-item, [data-ativo-item]'));
+                const dropAreaItems: DropAreaItem[] = [];
+
+                items.forEach((item, index) => {
+                  const element = item as HTMLElement;
+                  const name = this.extractItemName(element);
+                  const isCustomAsset = element.hasAttribute('data-new-asset');
+                  
+                  // MELHORADA: Lógica mais robusta para originalId
+                  let originalId = element.getAttribute('data-original-id') ||
+                                   element.getAttribute('data-id') ||
+                                   element.getAttribute('data-ativo-item');
+                  
+                  // Se não tem ID e não é custom asset, criar um baseado no nome e posição
+                  if (!originalId && !isCustomAsset && name) {
+                    originalId = `original-${name.toLowerCase().replace(/\s+/g, '-')}-${index}-${Date.now()}`;
+                    element.setAttribute('data-original-id', originalId);
+                    console.log('DEBUG: Created missing ID for original item:', originalId, name);
+                  }
+
+                  if (name) {
+                    const itemId = originalId || `item-${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+                    
+                    dropAreaItems.push({
+                      id: itemId,
+                      name: name,
+                      type: isCustomAsset ? 'custom' : 'original',
+                      position: index,
+                      createdAt: element.getAttribute('data-created-at') || new Date().toISOString(),
+                      originalId: originalId || itemId,
+                    });
+                    
+                    console.log('DEBUG: Saved item to cache:', { name, type: isCustomAsset ? 'custom' : 'original', id: itemId });
+                  }
+                });
+
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dropAreaItems));
+                console.log('DEBUG: Saved', dropAreaItems.length, 'items to localStorage');
+              } catch (error) {
+                console.error('Error saving drop area items:', error);
+              }
+            }
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Verificar que todos os itens na drop area são salvos no localStorage
+      </validation>
+    </task>
+
+    <!-- TASK 3: Fortalecer hideSourceItem -->
+    <task id="3" priority="MEDIUM">
+      <title>Melhorar Função de Ocultação de Itens Fonte</title>
+      <file>src/ativos/drop-area-persistence.ts</file>
+      <method>hideSourceItem</method>
+      <description>
+        Fortalecer a lógica de correspondência para garantir que itens fonte sejam 
+        ocultados corretamente mesmo quando não têm ID.
+      </description>
+      <changes>
+        <change type="modify">
+          <location>método hideSourceItem (linha ~120-140)</location>
+          <action>
+            Substituir por lógica mais robusta:
+            
+            ```typescript
+            private static hideSourceItem(originalId: string, itemName: string): void {
+              const sourceContainers = document.querySelectorAll('.ativos_main-list');
+
+              sourceContainers.forEach((container) => {
+                const items = container.querySelectorAll('.w-dyn-item, [data-ativo-item]');
+
+                items.forEach((item) => {
+                  const element = item as HTMLElement;
+                  const elementId = element.getAttribute('data-id') || 
+                                   element.getAttribute('data-original-id');
+                  const elementName = this.extractItemName(element);
+
+                  // MELHORADA: Lógica de correspondência mais robusta
+                  const matchById = originalId && elementId && elementId === originalId;
+                  const matchByName = itemName && elementName && 
+                                     elementName.toLowerCase().trim() === itemName.toLowerCase().trim();
+                  
+                  // Evitar ocultar itens já ocultos ou botões especiais
+                  const isAlreadyHidden = element.style.display === 'none' || 
+                                         element.hasAttribute('data-original-hidden');
+                  const isSpecialButton = element.id === 'adicionarAtivo' || 
+                                         element.classList.contains('add_ativo_manual');
+                  
+                  if ((matchById || (!originalId && matchByName)) && !isAlreadyHidden && !isSpecialButton) {
+                    element.style.display = 'none';
+                    element.setAttribute('data-original-hidden', 'true');
+                    console.log('DEBUG: Hidden source item:', { elementName, originalId, matchById, matchByName });
+                  }
+                });
+              });
+            }
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Verificar que itens fonte são ocultados corretamente após carregamento
+      </validation>
+    </task>
+
+    <!-- TASK 4: Melhorar handleAdd -->
+    <task id="4" priority="MEDIUM">
+      <title>Fortalecer Método handleAdd</title>
+      <file>src/ativos/enhanced-sortable-manager.ts</file>
+      <method>handleAdd</method>
+      <description>
+        Garantir que o método handleAdd sempre atribua IDs adequados e chame a persistência.
+      </description>
+      <changes>
+        <change type="modify">
+          <location>método handleAdd (linha ~150-180)</location>
+          <action>
+            Melhorar a lógica de atribuição de ID:
+            
+            ```typescript
+            private static handleAdd = (evt: Sortable.SortableEvent): void => {
+              AtivosCounter.updateCounter();
+              this.updateContainerStates();
+
+              // Ensure the moved item has proper identification for persistence
+              if (evt.item) {
+                const element = evt.item as HTMLElement;
+                const itemName = this.extractItemName(element);
+
+                // MELHORADA: Lógica mais robusta para atribuição de ID
+                const hasExistingId = element.getAttribute('data-original-id') || 
+                                     element.getAttribute('data-id');
+                const isCustomAsset = element.hasAttribute('data-new-asset');
+                
+                if (!hasExistingId && !isCustomAsset && itemName) {
+                  const uniqueId = `original-${itemName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+                  element.setAttribute('data-original-id', uniqueId);
+                  element.setAttribute('data-ativo-item', 'true');
+                  console.log('DEBUG: Assigned ID in handleAdd:', uniqueId, itemName);
+                }
+
+                // Store original item data for restoration if not already stored
+                if (!this.originalItemsData.has(element) && !isCustomAsset) {
+                  const sourceContainer = evt.from;
+                  const originalIndex = Array.from(sourceContainer.children).indexOf(element);
+                  this.originalItemsData.set(element, {
+                    parent: sourceContainer,
+                    index: originalIndex >= 0 ? originalIndex : 0,
+                  });
+                  console.log('DEBUG: Stored original item data for:', itemName);
+                }
+              }
+
+              // Save drop area items to persistence with delay to ensure DOM is updated
+              setTimeout(() => {
+                DropAreaPersistence.saveDropAreaItems();
+              }, 150);
+            };
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Verificar que itens movidos sempre têm ID e são salvos na persistência
+      </validation>
+    </task>
+
+    <!-- TASK 5: Adicionar Logs de Debug -->
+    <task id="5" priority="LOW">
+      <title>Adicionar Logs de Debug Detalhados</title>
+      <file>src/ativos/drop-area-persistence.ts</file>
+      <method>loadDropAreaItems</method>
+      <description>
+        Adicionar logs detalhados para facilitar debugging do processo de carregamento.
+      </description>
+      <changes>
+        <change type="modify">
+          <location>método loadDropAreaItems (linha ~70-110)</location>
+          <action>
+            Adicionar logs no início do método:
+            
+            ```typescript
+            public static loadDropAreaItems(): void {
+              try {
+                const stored = localStorage.getItem(this.STORAGE_KEY);
+                if (!stored) {
+                  console.log('DEBUG: No stored drop area items found');
+                  return;
+                }
+
+                const dropAreaItems: DropAreaItem[] = JSON.parse(stored);
+                console.log('DEBUG: Loading', dropAreaItems.length, 'drop area items:', dropAreaItems);
+                
+                const dropArea = document.querySelector('.ativos_main_drop_area');
+                if (!dropArea) {
+                  console.error('DEBUG: Drop area not found for loading');
+                  return;
+                }
+
+                // ... resto do método com logs adicionais onde apropriado
+              } catch (error) {
+                console.error('Error loading drop area items:', error);
+              }
+            }
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Verificar que logs aparecem no console durante carregamento
+      </validation>
+    </task>
+
+    <!-- TASK 6: Atualizar Testes -->
+    <task id="6" priority="MEDIUM">
+      <title>Atualizar Testes para Validar Persistência</title>
+      <file>tests/ativos-drag-drop.spec.ts</file>
+      <description>
+        Adicionar testes específicos para validar que itens originais são persistidos corretamente.
+      </description>
+      <changes>
+        <change type="add">
+          <location>final do arquivo</location>
+          <action>
+            Adicionar novo teste:
+            
+            ```typescript
+            test('should persist original items in localStorage after drag', async ({ page }) => {
+              // Localizar item original
+              const sourceItem = page.locator('.ativos_main-list .w-dyn-item').first();
+              const itemText = await sourceItem.textContent();
+              
+              // Arrastar para drop area
+              const dropArea = page.locator('.drop_ativos_area-wrapper');
+              await sourceItem.dragTo(dropArea);
+              await page.waitForTimeout(1000);
+              
+              // Verificar se foi salvo no localStorage
+              const storedItems = await page.evaluate(() => {
+                const stored = localStorage.getItem('ativos_drop_area_items');
+                return stored ? JSON.parse(stored) : [];
+              });
+              
+              expect(storedItems.length).toBeGreaterThan(0);
+              expect(storedItems.some(item => item.name.includes(itemText?.trim() || ''))).toBe(true);
+              expect(storedItems.some(item => item.type === 'original')).toBe(true);
+            });
+
+            test('should restore original items after page reload', async ({ page }) => {
+              // Primeiro, arrastar um item
+              const sourceItem = page.locator('.ativos_main-list .w-dyn-item').first();
+              const itemText = await sourceItem.textContent();
+              const dropArea = page.locator('.drop_ativos_area-wrapper');
+              
+              await sourceItem.dragTo(dropArea);
+              await page.waitForTimeout(1000);
+              
+              // Recarregar página
+              await page.reload();
+              await page.waitForTimeout(2000);
+              
+              // Verificar se item foi restaurado na drop area
+              const dropAreaItems = page.locator('.ativos_main_drop_area .w-dyn-item');
+              const dropAreaCount = await dropAreaItems.count();
+              
+              expect(dropAreaCount).toBeGreaterThan(0);
+              
+              if (dropAreaCount > 0) {
+                const restoredItemText = await dropAreaItems.first().textContent();
+                expect(restoredItemText).toContain(itemText?.trim() || '');
+              }
+            });
+            ```
+          </action>
+        </change>
+      </changes>
+      <validation>
+        Executar testes e verificar que passam consistentemente
+      </validation>
+    </task>
+
+  </implementation_tasks>
+
+  <testing_strategy>
+    <unit_tests>
+      <test>Verificar que todos os itens originais recebem IDs únicos na inicialização</test>
+      <test>Verificar que saveDropAreaItems salva todos os tipos de itens</test>
+      <test>Verificar que loadDropAreaItems restaura itens corretamente</test>
+      <test>Verificar que hideSourceItem funciona com e sem IDs</test>
+    </unit_tests>
+    
+    <integration_tests>
+      <test>Testar fluxo completo: arrastar → salvar → recarregar → restaurar</test>
+      <test>Testar com múltiplos itens originais e criados</test>
+      <test>Testar persistência entre sessões do navegador</test>
+    </integration_tests>
+    
+    <manual_tests>
+      <test>Verificar visualmente que itens são restaurados após reload</test>
+      <test>Verificar que contador é atualizado corretamente</test>
+      <test>Verificar que itens fonte são ocultados adequadamente</test>
+    </manual_tests>
+  </testing_strategy>
+
+  <rollback_plan>
+    <description>
+      Em caso de problemas, reverter as mudanças nos arquivos modificados e 
+      restaurar a versão anterior do sistema de persistência.
+    </description>
+    <steps>
+      <step>Fazer backup dos arquivos antes das modificações</step>
+      <step>Manter logs detalhados das mudanças realizadas</step>
+      <step>Testar em ambiente de desenvolvimento antes de produção</step>
+    </steps>
+  </rollback_plan>
+
+  <success_criteria>
+    <criterion>Todos os itens originais são persistidos após drag and drop</criterion>
+    <criterion>Itens são restaurados corretamente após recarregamento da página</criterion>
+    <criterion>Não há regressões no comportamento de itens criados pelo input</criterion>
+    <criterion>Performance não é impactada negativamente</criterion>
+    <criterion>Todos os testes passam consistentemente</criterion>
+  </success_criteria>
+
+  <notes>
+    <note>Manter compatibilidade com sistema atual de itens criados pelo input</note>
+    <note>Adicionar logs de debug para facilitar troubleshooting futuro</note>
+    <note>Considerar impacto de performance ao adicionar IDs a muitos itens</note>
+    <note>Testar com diferentes tipos de conteúdo CMS do Webflow</note>
+  </notes>
+
+</specification>

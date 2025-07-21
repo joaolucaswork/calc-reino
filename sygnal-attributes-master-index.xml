@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sygnal_attributes_documentation>
+    <metadata>
+        <title>Sygnal Attributes v5 - Complete Documentation Index</title>
+        <description>Comprehensive knowledge base for SA5 - Sygnal's Webflow Utilities Library</description>
+        <version>v5</version>
+        <source_url>https://attr.sygnal.com/</source_url>
+        <extraction_date>2025-07-21</extraction_date>
+        <tagline>Webflow Tools that Make Your Site Better</tagline>
+        <key_features>
+            <feature>100% free</feature>
+            <feature>100% open-source</feature>
+            <feature>100% designed for Webflow</feature>
+        </key_features>
+    </metadata>
+
+    <overview>
+        <description>SA5 is the latest version of Sygnal's Webflow Utilities Library. The tools are organized into individual libraries that extend Webflow's capabilities with advanced features for HTML manipulation, user accounts, forms, layouts, modals, and much more.</description>
+        
+        <navigation_guide>
+            <tip>Documentation is organized by library</tip>
+            <tip>🔍 About this Library - gives overview of capabilities</tip>
+            <tip>🚀 Quick Start - provides library code you need</tip>
+            <tip>Features are grouped separately within each library</tip>
+            <tip>🧪 indicates EXPERIMENTAL items (not yet available)</tip>
+            <tip>📝 indicates NOTES (primarily for dev team)</tip>
+            <tip>▶️ indicates VIDEO TUTORIALS</tip>
+        </navigation_guide>
+    </overview>
+
+    <library_categories>
+        <category name="Most Popular Libraries">
+            <library name="SA5 HTML" path="/sa5-html/about" status="stable">
+                <purpose>A huge range of page-modification capabilities</purpose>
+                <key_features>
+                    <feature path="/sa5-html/sa5-dynamic-attributes">Dynamic attributes</feature>
+                    <feature path="/sa5-html/truncate-text-w-ellipsis">Truncate text w/ ellipses</feature>
+                    <feature path="/sa5-html/advanced-element-sorting">Advanced sorting</feature>
+                    <feature path="/sa5-html/advanced-element-filtering">Advanced filtering</feature>
+                    <feature path="/sa5-html/encoded-email">Encoded Emails</feature>
+                    <feature path="/sa5-html/hide-section-w-empty-collection-lists">Hide Sections w/ Empty Collection Lists</feature>
+                    <feature>and much more...</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 User Accounts" path="/sa5-user-accounts/about" status="stable">
+                <purpose>Get logged in user info to personalize your site and improve user experience. Custom-route on login.</purpose>
+                <key_features>
+                    <feature>User name</feature>
+                    <feature>Email</feature>
+                    <feature>Custom fields</feature>
+                    <feature>Access groups</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Rich Text" path="/sa5-richtext/about" status="stable">
+                <purpose>Add capabilities to Webflow's Rich Text Block</purpose>
+                <key_features>
+                    <feature>Responsive inline images</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Layout" path="/sa5-layout/about" status="stable">
+                <purpose>Advanced, dynamic layouts for your Webflow pages</purpose>
+                <key_features>
+                    <feature>Restructure your collection lists entirely into groups</feature>
+                    <feature>Create dynamic tabs from the CMS</feature>
+                    <feature>Overcome Webflow's 5-nested-item limit</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Forms" path="/sa5-forms/about" status="stable">
+                <purpose>Easily replace Webflow's native form handler with your choice of 3rd party handlers like Basin, Zapier, Make, and n8n.</purpose>
+                <key_features>
+                    <feature>Eliminate SPAM</feature>
+                    <feature>Trigger automations</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Modals" path="/sa5-modals/about" status="stable">
+                <purpose>Create powerful, consistent modals with full design control and zero interactions</purpose>
+            </library>
+
+            <library name="SA5 Hotkeys" path="/sa5-hotkeys/about" status="stable">
+                <purpose>Define custom hotkeys to trigger your scripts, page actions and navigation</purpose>
+            </library>
+
+            <library name="SA5 URL" path="/sa5-url/about" status="stable">
+                <purpose>Special URL enhancement tools</purpose>
+                <key_features>
+                    <feature>Pass-through your query params from one page to another for referer tracking</feature>
+                    <feature>Target all external links to a new tab</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Video" path="/sa5-video/about" status="stable">
+                <purpose>Add capabilities to your video elements</purpose>
+                <key_features>
+                    <feature>Youtube Hide related videos</feature>
+                    <feature>Background Video poster image</feature>
+                    <feature>Video player</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Elements" path="/sa5-elements/about" status="stable">
+                <purpose>Control Webflow's elements with code, and receive events when they change</purpose>
+                <key_features>
+                    <feature>Tabs</feature>
+                    <feature>Sliders</feature>
+                    <feature>Buttons</feature>
+                    <feature>Dropdown menus</feature>
+                    <feature>Lightboxes</feature>
+                    <feature>Radio buttons</feature>
+                    <feature>Accordions</feature>
+                    <feature>Lotties</feature>
+                    <feature>Locale Switcher</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Format" path="/sa5-format/about" status="stable">
+                <purpose>Format numbers and currencies & dates specially</purpose>
+                <key_features>
+                    <feature>Locale-specific formatting</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Track" path="/sa5-track/about" status="stable">
+                <purpose>Special tracking using cookies and webStorage</purpose>
+            </library>
+
+            <library name="SA5 Select Custom" path="/sa5-selectcustom/about" status="stable">
+                <purpose>Custom Select element based on Finsweet's attribute of the same name. Adds some dynamic update capabilities</purpose>
+            </library>
+        </category>
+
+        <category name="Specialized Use / Advanced Libraries">
+            <library name="SA5 Core" path="/sa5-core/overview" status="stable">
+                <purpose>Central to SA5, but has a few tricks up its sleeve</purpose>
+                <key_features>
+                    <feature>Hide objects in the designer and make them visible in the published site</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Cache" path="/sa5-cache/about" status="stable">
+                <purpose>Handle high-latency tasks such as content-fetching with a built-in caching layer.</purpose>
+                <key_features>
+                    <feature>Allows complex calculations and slow data retrievals to easily cache.</feature>
+                    <feature>Code your update directly to the cache layer and it will "lazy load" the content when needed.</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Embeds" path="/sa5-embeds/about" status="stable">
+                <purpose>Embed external content into your blog posts and pages.</purpose>
+                <key_features>
+                    <feature>Tables from Google Docs</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Social Share" path="/sa5-socialshare/about" status="stable">
+                <purpose>Adds Email as a social share option. Designed to work in conjunction with Finsweet's Social Share component.</purpose>
+                <key_features>
+                    <feature>Adds share-to-email</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Analytics" path="/sa5-analytics/about" status="stable">
+                <purpose>Adds some analytics capabilities to your site using attributes.</purpose>
+                <key_features>
+                    <feature>GTM dataLayer events</feature>
+                    <feature>UTM Tracking</feature>
+                    <feature>Rel Attributes</feature>
+                    <feature>A/B testing</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Data" path="/sa5-data/about" status="stable">
+                <purpose>Extract CMS data into JS objects from your collection lists, to power your custom code and calculations.</purpose>
+                <key_features>
+                    <feature>Extract data from collection lists into datasources</feature>
+                    <feature>Extract querystring data, and URL data</feature>
+                    <feature>Cookies and webStorage</feature>
+                    <feature>Data-bind these pieces of information to text elements and form inputs</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 404" path="/sa5-404/article" status="stable">
+                <purpose>Improve your 404 pages</purpose>
+                <key_features>
+                    <feature>Smart search trigger Webflow site search based on the Path the user was looking for</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Countup" path="/sa5-countup/countup" status="stable">
+                <purpose>Animated count up to a set value. Triggers on scroll-into-view</purpose>
+            </library>
+
+            <library name="SA5 UI" path="/sa5-ui/about" status="stable">
+                <purpose>Special UI components</purpose>
+                <key_features>
+                    <feature>5-star ratings component ( display only )</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Demo" path="/sa5-demo/webflow-preview-link" status="stable">
+                <purpose>Add special capabilities to your Webflow demo sites, such as links to the correct readonly link page.</purpose>
+            </library>
+
+            <library name="SA5 Commerce" path="/sa5-commerce/payment-providers" status="stable">
+                <purpose>Simple commerce solutions for one-off purchases.</purpose>
+                <key_features>
+                    <feature>Paypal</feature>
+                    <feature>Windcave</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Trigger" path="/sa5-trigger/about" status="stable">
+                <purpose>Custom trigger items and interactions from text links and buttons.</purpose>
+                <key_features>
+                    <feature>Trigger interactions, such as pop-ups and modals from a link</feature>
+                    <feature>Support CMS-driven scenarios</feature>
+                </key_features>
+            </library>
+        </category>
+
+        <category name="Experimental Libraries">
+            <library name="SA5 Calc" path="/sa5-calc/article" status="experimental">
+                <purpose>Calculate & sum items</purpose>
+            </library>
+
+            <library name="SA5 SEO" path="/sa5-seo/about" status="experimental">
+                <purpose>Some SEO tools</purpose>
+                <key_features>
+                    <feature>Noindex</feature>
+                    <feature>Nofollow</feature>
+                    <feature>JSON-LD</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Fixup" path="/sa5-fixup/viewport-meta" status="experimental">
+                <purpose>Fix a few things in Webflow editor and published sites.</purpose>
+            </library>
+
+            <library name="SA5 Logic" path="/sa5-logic/about" status="experimental">
+                <purpose>Add logic capabilities using attributes, for conditional visibility and page structuring</purpose>
+                <key_features>
+                    <feature>If</feature>
+                    <feature>Switch</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Effects" path="/sa5-effects/about" status="experimental">
+                <purpose>Experimental effects</purpose>
+                <key_features>
+                    <feature>Depthmap ( fake 3d )</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 State" path="/sa5-state/about" status="experimental">
+                <purpose>State management</purpose>
+            </library>
+
+            <library name="SA5 Booking" path="/sa5-booking/about" status="experimental">
+                <purpose>Tag trigger elements easily to invoke 3rd party booking systems with the correct service, location, category, and staff member.</purpose>
+                <key_features>
+                    <feature>GetTimely</feature>
+                    <feature>SimplyBook</feature>
+                </key_features>
+            </library>
+
+            <library name="SA5 Localization" path="/sa5-localization/about" status="experimental">
+                <purpose>Various localization features</purpose>
+            </library>
+
+            <library name="SA5 Detect" path="/sa5-detect/about" status="experimental">
+                <purpose>Detect and manipulate your page depending on how</purpose>
+            </library>
+
+            <library name="SA5 Table" path="/sa5-table/html-tables" status="stable">
+                <purpose>Add HTML tables</purpose>
+            </library>
+        </category>
+    </library_categories>
+
+    <technical_information>
+        <v5_tech_stack>
+            <change>Changed from JavaScript ES6 codebase to TypeScript</change>
+            <change>Changed fully from CSS to SASS</change>
+            <change>Eliminated all use of jQuery in the libraries</change>
+            <change>Separated classes through the library into discrete source files</change>
+            <change>Bundled the distributed files differently for even greater efficiency</change>
+            <change>Integrated debugging features</change>
+        </v5_tech_stack>
+
+        <migration_notes>
+            <script_location>Move from before-/body section to before-/head section</script_location>
+            <library_urls>Change to point at /dist/ path rather than /src/ path</script_location>
+            <module_type>type=module is dropped</module_type>
+            <css_links>Continue to point to /dist/css/</css_links>
+            <attribute_compatibility>No changes to custom attributes or existing features needed</attribute_compatibility>
+        </migration_notes>
+    </technical_information>
+
+    <community_resources>
+        <github_repo>https://github.com/sygnaltech/webflow-util</github_repo>
+        <community_forum>https://sygnal-attr.discourse.group/</community_forum>
+        <sponsor_development>https://attr.sygnal.com/overview/sponsor</sponsor_development>
+        <support>https://www.buymeacoffee.com/sygnal</support>
+    </community_resources>
+
+    <files_generated>
+        <file>sygnal-attributes-overview.xml</file>
+        <file>sa5-html-library.xml</file>
+        <file>sa5-user-accounts-library.xml</file>
+        <file>sa5-forms-library.xml</file>
+        <file>sa5-layout-library.xml</file>
+        <file>sa5-modals-library.xml</file>
+        <file>sa5-elements-library.xml</file>
+        <file>sa5-richtext-library.xml</file>
+        <file>sa5-video-library.xml</file>
+        <file>experimental-libraries.xml</file>
+        <file>technical-migration-guide.xml</file>
+    </files_generated>
+</sygnal_attributes_documentation>

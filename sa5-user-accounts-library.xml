@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sa5_user_accounts_library>
+    <metadata>
+        <title>SA5 User Accounts Library - Complete Documentation</title>
+        <description>Extends Webflow's Memberships feature with enhanced user info access and routing capabilities</description>
+        <library_name>SA5 User Accounts</library_name>
+        <status>stable</status>
+        <source_url>https://attr.sygnal.com/sa5-user-accounts/about</source_url>
+        <version>v5</version>
+        <last_updated>2024-08-21</last_updated>
+    </metadata>
+
+    <deprecation_warning>
+        <importance>CRITICAL</importance>
+        <message>Webflow has announced the deprecation of User accounts in 2025, with new sites unable to enable the User account feature after Jan 31, 2025. The official sunset date where User accounts will be fully removed is about a year later, on Jan 29, 2026.</message>
+        <source_url>https://help.webflow.com/hc/en-us/articles/36046006227731-User-Accounts-sunset</source_url>
+        <key_dates>
+            <date type="feature_freeze">2025-01-31</date>
+            <date type="full_sunset">2026-01-29</date>
+        </key_dates>
+    </deprecation_warning>
+
+    <overview>
+        <purpose>Get logged in user info to personalize your site and improve user experience. Custom-route on login.</purpose>
+        <description>This library extends Webflow's Memberships feature with a few much needed features that help you access user information and control navigation flow.</description>
+        
+        <key_capabilities>
+            <capability name="Current User Info">
+                <description>Access the currently logged-in user's info from anywhere in your site. You can access user data in your custom code, or display it through attribute-based data-binding.</description>
+                <features>
+                    <feature>Name, email, and opt-in</feature>
+                    <feature>Custom user data fields that you've defined</feature>
+                    <feature>The user's list of access groups</feature>
+                </features>
+            </capability>
+
+            <capability name="Memberships Navigation">
+                <description>Route users specially during the Memberships process, during login and sign-up processes.</description>
+                <features>
+                    <feature>Route a user after login</feature>
+                    <feature>Route a user specially after the first login</feature>
+                </features>
+            </capability>
+        </key_capabilities>
+    </overview>
+
+    <quick_start>
+        <installation>
+            <description>How to Easily Add SA5's User Info & Advanced Routing Enhancements to Your Webflow Memberships Site</description>
+            
+            <script_installation>
+                <location>Add to site wide custom code HEAD area of your site</location>
+                <version_note>IMPORTANT: We've made some enhancements to SA5 Core in v5.5.0. If you are already using other SA5 Libs, please make certain to upgrade them to at least v5.5.0 as well to ensure cross-compatibility.</version_note>
+                
+                <standard_installation>
+                    <css_link>
+                        <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/css/webflow-membership.css">]]>
+                    </css_link>
+                    <js_script>
+                        <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/nocode/webflow-membership.js"></script>]]>
+                    </js_script>
+                    <configuration_script>
+                        <![CDATA[<script>
+window.sa5 = window.sa5 || [];
+window.sa5.push(['getMembershipConfig', 
+  (config) => {
+    // Apply any configuration settings here
+    // such as access groups
+    return config;
+  }]);
+</script>]]>
+                    </configuration_script>
+                </standard_installation>
+
+                <developer_installation>
+                    <description>For SA5 library developers, use the extended syntax to support Sygnal DevProxy</description>
+                    <css_link>
+                        <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/css/webflow-membership.css" dev-href="http://127.0.0.1:4000/dist/css/webflow-membership.css" devproxy-group="sa5">]]>
+                    </css_link>
+                    <js_script>
+                        <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/nocode/webflow-membership.js" dev-src="http://127.0.0.1:4000/dist/nocode/webflow-membership.js" devproxy-group="sa5"></script>]]>
+                    </js_script>
+                </developer_installation>
+            </script_installation>
+
+            <post_installation>
+                <note>Once you've added the library, both the User Info and the Advanced Log-In & Sign-Up Flow features are available to use.</note>
+            </post_installation>
+        </installation>
+
+        <current_user_info_setup>
+            <title>Current User Info Quick Start</title>
+            <feature_sets>
+                <feature_set number="1">
+                    <title>Basic User Info</title>
+                    <description>Basic user info like name, email, and opt-in is automatically accessible once the library is installed.</description>
+                    <setup_required>false</setup_required>
+                </feature_set>
+                
+                <feature_set number="2">
+                    <title>Custom User Fields</title>
+                    <description>Custom user fields requires special setup on your /access-group page.</description>
+                    <setup_required>true</setup_required>
+                    <setup_url>https://attr.sygnal.com/sa5-user-accounts/get-logged-in-user-info/custom-user-fields</setup_url>
+                </feature_set>
+                
+                <feature_set number="3">
+                    <title>Access Groups</title>
+                    <description>Access groups also requires a special setup.</description>
+                    <setup_required>true</setup_required>
+                    <setup_url>https://attr.sygnal.com/sa5-user-accounts/get-logged-in-user-info/access-groups</setup_url>
+                </feature_set>
+            </feature_sets>
+
+            <data_binding>
+                <description>User info works automatically behind the scenes, and gathers data when a User first logs in.</description>
+                
+                <usage_method name="Data-Binding Attributes">
+                    <description>To access User Info, you can use the data-binding feature on an element, such as a form field. Add a custom attribute of `wfu-bind` with the DSD you want to the element you want data-bound.</description>
+                    
+                    <example>
+                        <description>This custom attribute setting on an INPUT element will data-bind the user's email</description>
+                        <attribute>wfu-bind</attribute>
+                        <value>$user.email</value>
+                    </example>
+                    
+                    <data_source_descriptors_url>https://attr.sygnal.com/webflow-membership/logged-in-user-info#accessing-user-information</data_source_descriptors_url>
+                </usage_method>
+
+                <usage_method name="Custom Code">
+                    <description>If you want to use the user's info in custom code, use the callback option, and you get the full user object.</description>
+                    <callback_url>https://attr.sygnal.com/webflow-membership/logged-in-user-info#step-3-optional-add-custom-code-to-use-user-info-specially</callback_url>
+                    <user_object_url>https://attr.sygnal.com/webflow-membership/logged-in-user-info/the-user-object</user_object_url>
+                </usage_method>
+
+                <important_note>Users who are already logged in will need to log out, and log in again in order for the library to refresh their data.</important_note>
+            </data_binding>
+        </current_user_info_setup>
+
+        <login_signup_flow_setup>
+            <title>Log-In & Sign-Up Flow Quick Start</title>
+            <description>We use the same library above for this module.</description>
+            <requirement>However it requires configuration which is done through a configuration callback.</requirement>
+            <configuration_url>https://attr.sygnal.com/webflow-membership/advanced-log-in-and-sign-up-flow#step-1---add-the-library</configuration_url>
+            <next_steps>Add the custom attributes for the features you need, described in each feature separately.</next_steps>
+        </login_signup_flow_setup>
+    </quick_start>
+
+    <features>
+        <feature name="Logged-In User Info" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-user-accounts/get-logged-in-user-info</url>
+            <description>Access comprehensive user information for the currently logged-in user</description>
+            
+            <data_categories>
+                <category name="Basic Information">
+                    <description>Automatically available once library is installed</description>
+                    <data_points>
+                        <data_point>Name</data_point>
+                        <data_point>Email</data_point>
+                        <data_point>Opt-in status</data_point>
+                    </data_points>
+                </category>
+                
+                <category name="Custom User Fields">
+                    <description>Requires special setup on /access-group page</description>
+                    <setup_required>true</setup_required>
+                </category>
+                
+                <category name="Access Groups">
+                    <description>User's list of access groups</description>
+                    <setup_required>true</setup_required>
+                </category>
+            </data_categories>
+
+            <usage_methods>
+                <method name="data-binding">
+                    <attribute>wfu-bind</attribute>
+                    <description>Use data-binding feature on elements like form fields</description>
+                </method>
+                
+                <method name="custom_code">
+                    <description>Access full user object in custom JavaScript code</description>
+                </method>
+            </usage_methods>
+        </feature>
+
+        <feature name="Advanced Log-In & Sign-Up Flow" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-user-accounts/advanced-log-in-and-sign-up-flow</url>
+            <description>Control user routing during login and signup processes</description>
+            
+            <capabilities>
+                <capability>Route a user after login</capability>
+                <capability>Route a user specially after the first login</capability>
+            </capabilities>
+            
+            <configuration_required>true</configuration_required>
+            <setup_method>Configuration callback</setup_method>
+        </feature>
+
+        <feature name="Conditional Element Display" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-user-accounts/conditional-element-display</url>
+            <description>Show/hide elements based on user login status and access groups</description>
+        </feature>
+
+        <feature name="Expand Login Button" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-user-accounts/expand-login-button</url>
+            <description>Enhanced login button functionality</description>
+        </feature>
+    </features>
+
+    <data_access>
+        <user_object>
+            <description>Complete user object structure available through the library</description>
+            <documentation_url>https://attr.sygnal.com/webflow-membership/logged-in-user-info/the-user-object</documentation_url>
+        </user_object>
+        
+        <data_source_descriptors>
+            <description>Full list of data source descriptors for accessing user information</description>
+            <documentation_url>https://attr.sygnal.com/webflow-membership/logged-in-user-info#accessing-user-information</documentation_url>
+        </data_source_descriptors>
+    </data_access>
+
+    <technical_notes>
+        <library_dependencies>
+            <dependency>SA5 Core v5.5.0+</dependency>
+        </library_dependencies>
+        
+        <data_refresh>
+            <note>User info works automatically behind the scenes, and gathers data when a User first logs in</note>
+            <important>Users who are already logged in will need to log out, and log in again in order for the library to refresh their data</important>
+        </data_refresh>
+        
+        <configuration>
+            <method>Configuration callbacks using window.sa5.push()</method>
+            <callback_function>getMembershipConfig</callback_function>
+        </configuration>
+    </technical_notes>
+</sa5_user_accounts_library>

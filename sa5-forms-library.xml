@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sa5_forms_library>
+    <metadata>
+        <title>SA5 Forms Library - Complete Documentation</title>
+        <description>Enhanced Webflow form capabilities with data-binding, webhook handling, and advanced form features</description>
+        <library_name>SA5 Forms</library_name>
+        <status>stable</status>
+        <source_url>https://attr.sygnal.com/sa5-forms/about</source_url>
+        <version>v5</version>
+        <last_updated>2024-08-21</last_updated>
+    </metadata>
+
+    <overview>
+        <purpose>Enhance Webflow's native forms with advanced capabilities</purpose>
+        <description>This library contains features to enhance Webflow's native forms with three primary feature-sets: data-binding, IP info retrieval, and webhook handling.</description>
+        
+        <primary_features>
+            <feature name="Data-binding">
+                <description>Initialize form fields with data, such as the current user's email address, or information from the querystring or a cookie</description>
+                <capabilities>
+                    <capability>Populate Form SELECTs with dynamic data from Webflow Collection Lists</capability>
+                    <capability>Support for form INPUTs (textboxes) using HTML5's autocomplete features</capability>
+                    <capability>Use Collection List's built-in sorting and filtering options</capability>
+                </capabilities>
+            </feature>
+            
+            <feature name="IP Info">
+                <description>Similar to data-binding, retrieve and store the user's geoip information such as country, city, and IP they're submitting the form from</description>
+            </feature>
+            
+            <feature name="Webhook Handling">
+                <description>Form submission can be sent to external services like Zapier, Make, or form handlers like Basin. SA5 handles both transmission and response processing</description>
+                <benefits>
+                    <benefit>Display appropriate success/failure messages based on webhook results</benefit>
+                    <benefit>Maintain Webflow's inline success/error message functionality</benefit>
+                    <benefit>Support for multiple webhook providers</benefit>
+                </benefits>
+            </feature>
+        </primary_features>
+    </overview>
+
+    <installation>
+        <standard_installation>
+            <location>Add to site-wide custom code HEAD area of your site</location>
+            <version_note>IMPORTANT: We've made some enhancements to SA5 Core in v5.5.0. If you are already using other SA5 Libs, please make certain to upgrade them to at least v5.5.0 as well to ensure cross-compatibility.</version_note>
+            
+            <css_link>
+                <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/css/webflow-form.css">]]>
+            </css_link>
+            <js_script>
+                <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/nocode/webflow-form.js"></script>]]>
+            </js_script>
+        </standard_installation>
+
+        <developer_installation>
+            <description>For SA5 library developers, use the extended syntax to support Sygnal DevProxy</description>
+            <css_link>
+                <![CDATA[<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/css/webflow-form.css" dev-href="http://127.0.0.1:4000/dist/css/webflow-form.css" devproxy-group="sa5">]]>
+            </css_link>
+            <js_script>
+                <![CDATA[<script defer src="https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@5.6.0/dist/nocode/webflow-form.js" dev-src="http://127.0.0.1:4000/dist/nocode/webflow-form.js" devproxy-group="sa5"></script>]]>
+            </js_script>
+        </developer_installation>
+
+        <post_installation>
+            <note>Once you've added the library, add the custom attributes for the features you need, described in each feature separately.</note>
+        </post_installation>
+    </installation>
+
+    <features>
+        <feature name="Data-binding Form INPUTs & SELECTs" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-forms/data-binding-form-inputs-and-selects</url>
+            <description>The original feature SA was built around - populate Form SELECTs with dynamic data from Webflow Collection Lists, plus support for form INPUTs using HTML5's autocomplete features</description>
+            
+            <demo_url>https://sygnal-webflow-utils.webflow.io/demo/data-binding</demo_url>
+            
+            <how_it_works>
+                <step number="1">Creating a JSON datasource using a Webflow Collection List</step>
+                <step number="2">Processing that JSON into HTML and linking it to the INPUTs and SELECTs you designate</step>
+                <benefits>Setup is relatively simple, and you can use the Collection List's built-in sorting and filtering options to precisely control the data you want in your Form controls</benefits>
+            </how_it_works>
+
+            <setup_steps>
+                <step_1>
+                    <title>Add the Library</title>
+                    <description>Paste this code into the Before &lt;/body&gt; tag script area of your Page settings</description>
+                    <code_example>
+                        <![CDATA[<script type="module">
+import { dataBindAll } from 'https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@4.11/src/locode/webflow-forms-helper.min.js';
+$(function() {
+    dataBindAll();
+});
+</script>]]>
+                    </code_example>
+                </step_1>
+                
+                <step_2>
+                    <title>Create a Collection List Data Source</title>
+                    <description>Setup your Collection List Data Source following the instructions for datasources</description>
+                    <requirements>This needs to be accessible on any page(s) that you'll be doing data-binding</requirements>
+                </step_2>
+                
+                <step_3>
+                    <title>Setup your Form</title>
+                    <instructions>
+                        <instruction number="1">Select the INPUT Textbox or SELECT List that you're wanting to data-bind</instruction>
+                        <instruction number="2">Add a custom attribute directly to that form control, with the name `wfu-bind`. This tells WFU that you want to bind this control to a datasource</instruction>
+                        <instruction number="3">For the value, enter the data source name that you chose above</instruction>
+                    </instructions>
+                    <note>If you are binding a SELECT you may wish to remove the default values that Webflow has created. WFU will not delete them.</note>
+                </step_3>
+            </setup_steps>
+
+            <nocode_setup>
+                <step_1>First, add the library as detailed in Quick Start</step_1>
+                <step_2>Setup your attributes (see above for details)</step_2>
+            </nocode_setup>
+
+            <troubleshooting>
+                <issue name="Not binding at all">
+                    <checklist>
+                        <check>Double-check that you have the custom attribute `wfu-data` = (your data source name) on the outermost part of the Collection List</check>
+                        <check>Double-check that you have the custom attribute `wfu-bind` = (your data source name) on the INPUT or SELECT that you're wanting to data-bind</check>
+                        <check>Double-check that your datasource name is exactly the same on both</check>
+                        <check>Double-check that you have the script inserted in the right place in your page or site configuration</check>
+                        <check>Make sure that your filter, sort, and item limit settings on your Collection List actually retrieve the data you want</check>
+                        <check>Run through the instructions above again and re-verify everything</check>
+                    </checklist>
+                </issue>
+                
+                <issue name="Weird data on Form Posts">
+                    <input_elements>For INPUT elements, the value posted is whatever the user types in that textbox</input_elements>
+                    <select_elements>For SELECTS, the value posted is the `id` you specified in your script block. Make sure you chose the right field for that, and that you have no extraneous spaces</select_elements>
+                </issue>
+            </troubleshooting>
+        </feature>
+
+        <feature name="Smart Form Webhook Handler" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-forms/webhook-handler</url>
+            <description>Post form data direct to webhooks, while supporting Webflow's inline success/error messages</description>
+            
+            <demo_urls>
+                <demo_url name="Zapier Webhook">https://webflow-forms-demo.webflow.io/auto/zapier-webhook</demo_url>
+                <demo_url name="Webhook Success">https://webflow-forms-demo.webflow.io/auto/webhook-success</demo_url>
+            </demo_urls>
+
+            <version_updates>
+                <update version="v5.3.7">Redefined the `other` handler to recognize error codes as errors, and to display the form's error message accordingly. If you need the original behavior where success is assumed regardless of the response code, use the new `success` handler</update>
+                <update version="v4.10">Adds Basin support, to help alleviate SPAM and form handler issues</update>
+            </version_updates>
+
+            <overview>
+                <problem>Webflow forms can be redirected to a webhook for external processing, but Webflow does not have any built-in way to handle the webhook's response. By default, instead of a "success" message, the user sees the JSON response itself</problem>
+                <solution>SA5 Forms bridges that gap by submitting form data to webhooks, analyzing responses, and displaying appropriate success/failure messages</solution>
+            </overview>
+
+            <workflow>
+                <step number="1">Submits your form directly to the webhook you choose</step>
+                <step number="2">Analyzes the response to determine success or failure</step>
+                <step number="3">Displays the form success or failure message, depending on that result</step>
+                <step number="4">On successful submit with redirect URL configured, gives submit button "Please wait..." text and redirects the page</step>
+            </workflow>
+
+            <setup_steps>
+                <step number="1">First, add the library as detailed in Quick Start</step>
+                <step number="2">Setup your webhook handlers on Basin, Zapier, Make, n8n, or your form handler or automation provider of choice. Design it to accept HTTP POST requests</step>
+                <step number="3">Link your Webflow form by setting the action to your webhook URL. Copy the webhook URL and in the Webflow designer, paste it into the `Action` setting of the form</step>
+                <step number="4">Design the form however you like</step>
+                <step number="5">Set the form method to POST</step>
+                <step number="6">Make sure to customize your success and fail messages too for clarity</step>
+            </setup_steps>
+
+            <form_configuration>
+                <attribute>wfu-form-handler</attribute>
+                <location>Add to the Form Block element (not the Form element)</location>
+                <handlers>
+                    <handler name="basin">
+                        <value>basin</value>
+                        <description>For Basin webhooks</description>
+                        <url>https://usebasin.com/</url>
+                    </handler>
+                    <handler name="zapier">
+                        <value>zapier</value>
+                        <description>For Zapier webhooks</description>
+                    </handler>
+                    <handler name="make">
+                        <value>make</value>
+                        <description>For Make (Integromat) webhooks</description>
+                    </handler>
+                    <handler name="n8n">
+                        <value>n8n</value>
+                        <description>For n8n webhooks</description>
+                    </handler>
+                    <handler name="other">
+                        <value>other</value>
+                        <description>For all other webhooks - relies on response codes (200-299 = success)</description>
+                    </handler>
+                    <handler name="success">
+                        <value>success</value>
+                        <description>To assume success on any response</description>
+                    </handler>
+                </handlers>
+            </form_configuration>
+
+            <webhook_handlers>
+                <handler name="Zapier">
+                    <behavior>Looks for "success" in the response, and displays the success message if present</behavior>
+                    <note>Zapier's success response only indicates that the data was received successfully. It does not indicate that the Zap ran successfully</note>
+                </handler>
+                <handler name="Make">
+                    <behavior>Can handle specific responses and display error messages, if you use the HTTP Response node in Make</behavior>
+                    <note>If you have the request return immediately, you will simply get 'Accepted' from Make as the success text</note>
+                </handler>
+                <handler name="n8n">
+                    <behavior>Can handle specific responses and display error messages</behavior>
+                </handler>
+                <handler name="Basin">
+                    <behavior>Shows success and fail messages depending on Basin's response</behavior>
+                    <url>https://usebasin.com/</url>
+                </handler>
+                <handler name="Other">
+                    <behavior>Relies on the webhook to return a meaningful response code. Responses in the range 200-299 are considered success, and anything else is considered an error</behavior>
+                    <use_case>Most useful for unknown webhook providers and simple form submissions like newsletter enrollments</use_case>
+                </handler>
+                <handler name="Success">
+                    <behavior>Always displays the success message, regardless of the response code</behavior>
+                    <use_case>Use when success/failure aren't that important, you just need to indicate to the user that their work is done</use_case>
+                </handler>
+            </webhook_handlers>
+
+            <key_advantages>
+                <advantage>Immediate form processing, with no delays</advantage>
+                <advantage>No need to use Webflow's built-in forms email notification system</advantage>
+                <advantage>No form submission limits</advantage>
+                <advantage>Make the form behave like a normal webflow form post, where it stays on the same page, and displays the form's success message</advantage>
+                <advantage>Handle error scenarios better, including unique server side logic and error messages (with Make & n8n)</advantage>
+            </key_advantages>
+        </feature>
+
+        <feature name="Form Data Validation" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/form-data-validation</url>
+            <description>Enhanced form validation capabilities</description>
+        </feature>
+
+        <feature name="Remove Unchecked Checkboxes" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/remove-unchecked-checkboxes</url>
+            <description>Remove unchecked checkboxes from form submissions</description>
+            <status_icon>✨</status_icon>
+        </feature>
+
+        <feature name="Preserve Line Breaks" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/form-data-fixups</url>
+            <description>Preserve line breaks in form submissions</description>
+        </feature>
+
+        <feature name="Form IP Info" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-forms/form-ip</url>
+            <description>Capture user's geographical and IP information with form submissions</description>
+            <version>v5</version>
+        </feature>
+
+        <feature name="File Uploads" status="planned" complexity="advanced">
+            <url>https://attr.sygnal.com/sa5-forms/file-uploads</url>
+            <description>Enhanced file upload capabilities</description>
+            <status_icon>📝</status_icon>
+        </feature>
+
+        <feature name="Custom Form Submit Button" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/custom-form-submit-button</url>
+            <description>Custom submit button functionality</description>
+        </feature>
+
+        <feature name="File Downloads" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/file-downloads</url>
+            <description>Form-triggered file downloads</description>
+        </feature>
+
+        <feature name="Form Select Element" status="stable" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/form-select-element</url>
+            <description>Enhanced select element functionality</description>
+        </feature>
+
+        <feature name="Dynamic Forms" status="stable" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-forms/dynamic-forms</url>
+            <description>Create dynamic form behaviors</description>
+        </feature>
+
+        <feature name="Form Success Redirect" status="experimental" complexity="intermediate">
+            <url>https://attr.sygnal.com/sa5-forms/form-success-redirect</url>
+            <description>Redirect users after successful form submission</description>
+            <status_icon>🧪</status_icon>
+        </feature>
+
+        <feature name="Show/Hide Password" status="experimental" complexity="beginner">
+            <url>https://attr.sygnal.com/sa5-forms/show-hide-password</url>
+            <description>Toggle password visibility in form fields</description>
+            <status_icon>🧪</status_icon>
+        </feature>
+    </features>
+
+    <technical_details>
+        <support>
+            <current>Currently supports HTTP POST to webhooks only</current>
+            <future>May add HTTP GET support if users request it</future>
+        </support>
+        
+        <dependencies>
+            <dependency>SA5 Core v5.5.0+</dependency>
+        </dependencies>
+        
+        <compatibility>
+            <webflow_forms>Enhances Webflow's native form capabilities</webflow_forms>
+            <webhook_providers>
+                <provider>Basin</provider>
+                <provider>Zapier</provider>
+                <provider>Make (Integromat)</provider>
+                <provider>n8n</provider>
+                <provider>Custom webhooks</provider>
+            </webhook_providers>
+        </compatibility>
+    </technical_details>
+
+    <api>
+        <javascript_api>
+            <url>https://attr.sygnal.com/sa5-forms/sa5-forms-api</url>
+            <description>JavaScript API for programmatic form control</description>
+        </javascript_api>
+    </api>
+
+    <roadmap>
+        <future_plans>
+            <url>https://attr.sygnal.com/sa5-forms/about/sa5-forms-roadmap</url>
+            <note>Stay tuned for upcoming enhancements</note>
+        </future_plans>
+    </roadmap>
+</sa5_forms_library>
