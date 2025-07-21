@@ -1,11 +1,12 @@
 /**
  * Notification Service using Notyf
- * 
+ *
  * Provides centralized notification management for the Ativos system
  */
 
-import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+
+import { Notyf } from 'notyf';
 
 export class NotificationService {
   private static instance: Notyf | null = null;
@@ -22,29 +23,23 @@ export class NotificationService {
       duration: 4000,
       position: {
         x: 'center',
-        y: 'bottom'
+        y: 'bottom',
       },
       dismissible: true,
       types: [
         {
           type: 'success',
-          background: '#10b981', // Pastel green
-          icon: {
-            className: 'notyf__icon--success',
-            tagName: 'span',
-            text: '✓'
-          }
+          background: '#FFFFFF', // White for new asset additions
+          className: 'custom-success-toast',
+          icon: false, // Remove icons
         },
         {
           type: 'error',
-          background: '#f87171', // Pastel red
-          icon: {
-            className: 'notyf__icon--error',
-            tagName: 'span',
-            text: '✕'
-          }
-        }
-      ]
+          background: '#FFE6E6', // Pastel red for errors/removals
+          className: 'custom-error-toast',
+          icon: false, // Remove icons
+        },
+      ],
     });
 
     // Add custom CSS for minimalist design
@@ -104,52 +99,116 @@ export class NotificationService {
       /* Minimalist Notyf styling */
       .notyf__toast {
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 14px;
-        font-weight: 500;
-        padding: 16px 20px;
+        font-weight: 400;
+        padding: 8px 12px;
         min-height: auto;
+        height: auto;
+        max-width: 350px;
+        border: none;
+        position: relative;
       }
 
       .notyf__message {
         margin: 0;
-        line-height: 1.4;
+        line-height: 1.2;
+        padding-right: 0;
+        color: #333333;
+        font-weight: 500;
       }
 
+      /* Remove all icon spacing and display */
       .notyf__icon {
-        margin-right: 12px;
-        font-size: 16px;
-        font-weight: bold;
+        display: none !important;
       }
 
+      /* Dismiss button styling - seamless integration */
       .notyf__dismiss-btn {
-        opacity: 0.7;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 20px;
+        height: 20px;
+        opacity: 1;
         transition: opacity 0.2s ease;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #000000;
+        cursor: pointer;
+        border-radius: 0;
+        padding: 0;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .notyf__dismiss-btn:hover {
-        opacity: 1;
+        opacity: 0.7;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+      }
+
+      .notyf__dismiss-btn:before {
+        content: '×';
+        font-size: 18px;
+        font-weight: 400;
       }
 
       /* Success notification styling */
-      .notyf__toast--success {
-        background: #10b981;
-        color: white;
+      .notyf__toast--success,
+      .custom-success-toast {
+        background: #FFFFFF !important;
+        color: #333333 !important;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .notyf__toast--success .notyf__message,
+      .custom-success-toast .notyf__message {
+        color: #333333 !important;
+      }
+
+      .notyf__toast--success .notyf__dismiss-btn,
+      .custom-success-toast .notyf__dismiss-btn {
+        color: #000000 !important;
       }
 
       /* Error notification styling */
-      .notyf__toast--error {
-        background: #f87171;
-        color: white;
+      .notyf__toast--error,
+      .custom-error-toast {
+        background: #FFE6E6 !important;
+        color: #333333 !important;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .notyf__toast--error .notyf__message,
+      .custom-error-toast .notyf__message {
+        color: #333333 !important;
+      }
+
+      .notyf__toast--error .notyf__dismiss-btn,
+      .custom-error-toast .notyf__dismiss-btn {
+        color: #000000 !important;
       }
 
       /* Container positioning */
       .notyf {
         z-index: 9999;
       }
+
+      /* Ensure consistent compact styling across all states */
+      .notyf__toast.notyf__toast--disappear,
+      .notyf__toast.notyf__toast--upper,
+      .notyf__toast.notyf__toast--lower {
+        padding: 8px 12px;
+        min-height: auto;
+        height: auto;
+      }
     `;
-    
+
     document.head.appendChild(style);
   }
 

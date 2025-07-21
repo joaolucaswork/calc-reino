@@ -42,7 +42,7 @@ export class EnhancedAtivosManager {
 
     // Set initial state for source containers and load persisted assets
     setTimeout(() => {
-      this.updateSourceContainerState();
+      this.updateContainerStates();
       this.loadPersistedAssets();
       // Load drop area items after other assets are loaded
       DropAreaPersistence.loadDropAreaItems();
@@ -221,7 +221,7 @@ export class EnhancedAtivosManager {
     // Update counter and source container states after restoration
     setTimeout(() => {
       AtivosCounter.updateCounter();
-      this.updateSourceContainerState();
+      this.updateContainerStates();
       this.ensureAddButtonPosition(); // Ensure add button stays at the end
       // Clear drop area persistence since all items are back in source
       DropAreaPersistence.clearStoredItems();
@@ -260,7 +260,7 @@ export class EnhancedAtivosManager {
   private static handleAdd = (evt: Sortable.SortableEvent): void => {
     AtivosCounter.updateCounter();
     // Update source container state (item was removed from source)
-    this.updateSourceContainerState();
+    this.updateContainerStates();
 
     // Ensure the moved item has proper identification for persistence
     if (evt.item) {
@@ -296,18 +296,23 @@ export class EnhancedAtivosManager {
   private static handleRemove = (): void => {
     AtivosCounter.updateCounter();
     // Update source container state (item was returned to source)
-    this.updateSourceContainerState();
+    this.updateContainerStates();
     // Save drop area items to persistence
     setTimeout(() => DropAreaPersistence.saveDropAreaItems(), 100);
   };
 
   /**
-   * Update the visual state of source containers based on their content
+   * Update the visual state of containers based on their content
    */
-  private static updateSourceContainerState(): void {
+  private static updateContainerStates(): void {
+    // Update both source containers and drop areas
     const sourceContainers = document.querySelectorAll<HTMLElement>('.ativos_main-list');
+    const dropAreas = document.querySelectorAll<HTMLElement>('.ativos_main_drop_area');
 
-    sourceContainers.forEach((container) => {
+    // Combine both NodeLists into a single array
+    const allContainers = [...sourceContainers, ...dropAreas];
+
+    allContainers.forEach((container) => {
       // Count draggable items (exclude filtered elements)
       const draggableItems = container.querySelectorAll('.w-dyn-item, [data-ativo-item]');
       const filteredItems = container.querySelectorAll(
@@ -317,18 +322,25 @@ export class EnhancedAtivosManager {
       const actualDraggableCount = draggableItems.length - filteredItems.length;
       const isEmpty = actualDraggableCount <= 0;
 
-      // Find the .texto-info element within this container or its parent
-      const textoInfo =
-        container.querySelector('.texto-info') ||
-        container.parentElement?.querySelector('.texto-info');
+      // Find the .text-info_wrapper element with multiple strategies
+      let textInfoWrapper =
+        container.querySelector('.text-info_wrapper') ||
+        container.parentElement?.querySelector('.text-info_wrapper');
 
-      if (textoInfo) {
+      // For drop areas, also check within sibling elements or wrapper containers
+      if (!textInfoWrapper && container.matches('.ativos_main_drop_area')) {
+        textInfoWrapper =
+          container.closest('.drop_ativos_area-wrapper')?.querySelector('.text-info_wrapper') ||
+          container.closest('[class*="drop"]')?.querySelector('.text-info_wrapper');
+      }
+
+      if (textInfoWrapper) {
         if (isEmpty) {
-          // Add 'ativo' class when container is empty
-          textoInfo.classList.add('ativo');
+          // Remove 'hide' class when container is empty (show the element)
+          textInfoWrapper.classList.remove('hide');
         } else {
-          // Remove 'ativo' class when container has items
-          textoInfo.classList.remove('ativo');
+          // Add 'hide' class when container has items (hide the element)
+          textInfoWrapper.classList.add('hide');
         }
       }
     });
@@ -547,7 +559,7 @@ export class EnhancedAtivosManager {
 
     // Update counter and states
     AtivosCounter.updateCounter();
-    this.updateSourceContainerState();
+    this.updateContainerStates();
 
     // Save to persistence
     setTimeout(() => DropAreaPersistence.saveDropAreaItems(), 150);
@@ -681,7 +693,7 @@ export class EnhancedAtivosManager {
 
       // Update counter and container states
       AtivosCounter.updateCounter();
-      this.updateSourceContainerState();
+      this.updateContainerStates();
 
       // Show success notification
       NotificationService.showAssetCreated(assetName);
@@ -872,7 +884,7 @@ export class EnhancedAtivosManager {
     });
 
     // Update container state after loading assets
-    this.updateSourceContainerState();
+    this.updateContainerStates();
   };
 
   /**

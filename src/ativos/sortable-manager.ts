@@ -227,6 +227,21 @@ export class AtivosManager {
           textoInfo.classList.remove('ativo');
         }
       }
+
+      // Find the .text-info_wrapper element within this container or its parent
+      const textInfoWrapper =
+        container.querySelector('.text-info_wrapper') ||
+        container.parentElement?.querySelector('.text-info_wrapper');
+
+      if (textInfoWrapper) {
+        if (isEmpty) {
+          // Remove 'hide' class when container is empty (show the element)
+          textInfoWrapper.classList.remove('hide');
+        } else {
+          // Add 'hide' class when container has items (hide the element)
+          textInfoWrapper.classList.add('hide');
+        }
+      }
     });
   }
 

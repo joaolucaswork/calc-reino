@@ -93,7 +93,7 @@
 }
 
 /* Main drop area states */
-.ativos_main_drop_area.ativos-empty {
+.ativos_main_drop_area {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -139,24 +139,6 @@ body.ativos-sorting .w-dyn-item {
 .counter_ativos {
   font-weight: 600;
   color: #daa521;
-}
-
-/* Empty state */
-.ativos_main-list:empty::after,
-.ativos_main_drop_area:empty::after {
-  content: 'Arraste seus ativos aqui';
-  display: block;
-  text-align: center;
-  padding: 32px 16px;
-  color: rgba(0, 0, 0, 0.4);
-  font-style: italic;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-.ativos_main-list.ativos-has-items:empty::after,
-.ativos_main_drop_area.ativos-has-items:empty::after {
-  display: none;
 }
 
 /* Drag handle - lightweight */
@@ -262,12 +244,6 @@ body.ativos-sorting .w-dyn-item {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .w-dyn-item {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .ativos_main-list:empty::after,
-  .ativos_main_drop_area:empty::after {
-    color: rgba(255, 255, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.1);
   }
 }

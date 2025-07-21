@@ -73,42 +73,20 @@ export class AtivosCounter {
 
   /**
    * Update container state classes based on count
+   * Note: Visual state management is now handled by the text-info_wrapper toggle system
+   * This method is kept for any future container-specific logic
    */
   private static updateContainerStates(count: number): void {
     const mainDropArea = document.querySelector('.ativos_main_drop_area');
-    const containers = document.querySelectorAll(DEFAULT_SELECTORS.CONTAINER);
-    const dropAreas = document.querySelectorAll(DEFAULT_SELECTORS.DROP_AREA);
 
-    // Update main drop area
+    // Only keep the ativos-has-items class for potential CSS styling needs
     if (mainDropArea) {
       if (count === 0) {
-        mainDropArea.classList.add('ativos-empty');
         mainDropArea.classList.remove('ativos-has-items');
       } else {
         mainDropArea.classList.add('ativos-has-items');
-        mainDropArea.classList.remove('ativos-empty');
       }
     }
-
-    containers.forEach((container) => {
-      if (count === 0) {
-        container.classList.add('ativos-empty');
-        container.classList.remove('ativos-has-items');
-      } else {
-        container.classList.add('ativos-has-items');
-        container.classList.remove('ativos-empty');
-      }
-    });
-
-    dropAreas.forEach((dropArea) => {
-      if (count === 0) {
-        dropArea.classList.add('ativos-empty');
-        dropArea.classList.remove('ativos-has-items');
-      } else {
-        dropArea.classList.add('ativos-has-items');
-        dropArea.classList.remove('ativos-empty');
-      }
-    });
   }
 
   /**

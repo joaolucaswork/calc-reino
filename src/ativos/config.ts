@@ -51,7 +51,6 @@ export const CSS_CLASSES = {
   CHOSEN: 'ativos-chosen',
   DRAG: 'ativos-drag',
   FALLBACK: 'ativos-fallback',
-  EMPTY_STATE: 'ativos-empty',
   HAS_ITEMS: 'ativos-has-items',
 } as const;
 
