@@ -55,7 +55,7 @@
   "dependencies": {
     "@finsweet/ts-utils": "^0.40.0",
     "currency.js": "^2.0.4",
-    "gsap": "^3.13.0",
+    "notyf": "^3.10.0",
     "sortablejs": "^1.15.6"
   },
   "engines": {

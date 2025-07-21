@@ -2,15 +2,18 @@
  * Ativos Module
  *
  * Manages drag and drop functionality for assets using SortableJS
- * Enhanced with GSAP FLIP animations for premium user experience
+ * Optimized for performance with minimal animations
  */
 
-// Import enhanced styles for GSAP FLIP
-import './styles/enhanced-ativos.css';
+// Import lightweight styles for better performance
+import './styles/lightweight-ativos.css';
 
+import { ContextMenuService } from './context-menu';
 import { AtivosCounter } from './counter';
-// Import enhanced functionality with GSAP FLIP
+import { DropAreaPersistence } from './drop-area-persistence';
+// Use enhanced functionality with simplified animations
 import { EnhancedAtivosManager } from './enhanced-sortable-manager';
+import { NotificationService } from './notification-service';
 import { WebflowAtivosInit } from './webflow-integration';
 
 // Import configuration and types
@@ -21,7 +24,14 @@ export * from './types';
 WebflowAtivosInit.initialize();
 
 // Export enhanced API
-export { AtivosCounter, EnhancedAtivosManager as AtivosManager, WebflowAtivosInit };
+export {
+  AtivosCounter,
+  EnhancedAtivosManager as AtivosManager,
+  ContextMenuService,
+  DropAreaPersistence,
+  NotificationService,
+  WebflowAtivosInit,
+};
 
 // Export utilities for advanced usage
 export const ativosUtils = {

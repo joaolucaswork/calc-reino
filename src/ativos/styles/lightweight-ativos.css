@@ -1,16 +1,15 @@
 /**
- * Ativos Module Styles
+ * Lightweight Ativos Module Styles
  * 
- * CSS for drag and drop functionality using SortableJS
- * Designed for Webflow integration
+ * Optimized for performance with minimal animations
+ * Removed heavy GSAP animations to improve site speed
  */
 
-/* Base sortable styles */
+/* Base sortable styles - minimal and fast */
 .ativos_main-list,
 .ativos_main_drop_area {
   position: relative;
   min-height: 50px;
-  transition: all 0.3s ease;
 }
 
 .ativos_main_drop_area {
@@ -18,79 +17,79 @@
   height: auto;
   min-height: 100px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row; /* Items lado a lado */
+  flex-wrap: wrap; /* Quebra linha quando não tem espaço */
+  gap: 12px; /* Espaço entre os itens */
   padding: 16px;
+  align-items: flex-start; /* Alinha itens no topo */
+  align-content: flex-start; /* Alinha as linhas no topo */
 }
 
-/* Drag states */
+/* Drag states - subtle and clean visual feedback */
 .ativos-ghost {
-  opacity: 0.4;
-  border: 2px dashed #daa521 !important;
-  border-radius: 8px;
-  transform: rotate(2deg);
+  opacity: 1 !important;
+  border: 1px dashed #daa521 !important;
 }
 
 .ativos-chosen {
   cursor: grabbing !important;
-  transform: scale(1.02);
   z-index: 1000;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 2px solid #daa521;
-  border-radius: 8px;
+  border: 1px solid #daa521 !important;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
 }
 
 .ativos-drag {
-  opacity: 0.8;
-  transform: rotate(-2deg);
-  transition: transform 0.2s ease;
+  cursor: grabbing !important;
+  z-index: 1001;
 }
 
 .ativos-fallback {
   cursor: grabbing !important;
-  opacity: 0.8;
+  opacity: 1;
   border: 2px dashed #daa521;
   border-radius: 8px;
 }
 
-/* Individual item states */
+/* Individual item states - lightweight */
 .ativos_main-list .w-dyn-item {
   cursor: grab;
-  transition: all 0.2s ease;
   position: relative;
   user-select: none;
 }
 
 .ativos_main-list .w-dyn-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  transition: transform 0.1s ease;
 }
 
 .ativos_main_drop_area .w-dyn-item {
-  cursor: default; /* Items in drop area are not draggable */
-  transition: all 0.2s ease;
+  cursor: default;
   position: relative;
   border-radius: 8px;
-  margin-bottom: 8px;
   user-select: none;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  min-width: auto;
+  max-width: none;
 }
 
 .ativos_main_drop_area .w-dyn-item:hover {
-  /* Subtle hover effect for dropped items */
-  opacity: 0.9;
+  opacity: 1;
+  transition: opacity 0.1s ease;
 }
 
-/* Clone and drag states - only for items being dragged from source */
-.ativos_main-list .w-dyn-item.ativos-dragging {
+/* Drag states - minimal and clean for shared groups */
+.w-dyn-item.ativos-dragging {
   cursor: grabbing !important;
-  opacity: 0.8;
-  transform: rotate(-2deg);
-  z-index: 1000;
+  border: 1px solid #daa521 !important;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
 }
 
 /* Drop area states */
 .drop_ativos_area-wrapper {
   position: relative;
-  transition: all 0.3s ease;
 }
 
 /* Main drop area states */
@@ -102,27 +101,44 @@
   border-color: rgba(218, 165, 33, 0.3);
 }
 
-/* Active sorting state */
+/* Active sorting state - subtle visual feedback */
 body.ativos-sorting .drop_ativos_area-wrapper,
 body.ativos-sorting .ativos_main_drop_area {
-  border-color: #daa521;
-  box-shadow: inset 0 0 0 2px rgba(218, 165, 33, 0.2);
-}
-
-body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
-  opacity: 0.6;
-}
-
-/* Counter styles */
-.counter_ativos {
+  border-color: #daa521 !important;
+  background-color: rgba(218, 165, 33, 0.02);
   transition: all 0.2s ease;
+}
+
+/* Subtle highlight for drop zones during drag */
+body.ativos-sorting .ativos_main_drop_area:hover {
+  background-color: rgba(218, 165, 33, 0.05);
+}
+
+/* Keep all items fully visible during drag */
+body.ativos-sorting .w-dyn-item {
+  transition: none; /* Remove opacity transitions for cleaner experience */
+}
+
+/* Dynamic state for empty source containers */
+.texto-info.ativo {
+  /* This class is toggled when source container is empty */
+  /* Webflow combo class styling will be applied automatically */
+  /* Placeholder property to avoid empty ruleset warning */
+  position: relative;
+}
+
+/* Styling for new custom assets - now using #pillAtivo template */
+.new-asset-item {
+  /* Minimal styling since we're using existing Webflow element structure */
+  position: relative;
+}
+
+/* Optional: Add subtle indicator for custom assets if needed */
+
+/* Counter styles - simple and fast */
+.counter_ativos {
   font-weight: 600;
   color: #daa521;
-}
-
-.ativos_counter-wrapper.updating .counter_ativos {
-  transform: scale(1.1);
-  color: #c4955d;
 }
 
 /* Empty state */
@@ -143,11 +159,10 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   display: none;
 }
 
-/* Drag handle (if needed) */
+/* Drag handle - lightweight */
 .ativos-handle {
   cursor: grab;
-  opacity: 0.5;
-  transition: opacity 0.2s ease;
+  opacity: 1;
 }
 
 .ativos-handle:hover {
@@ -158,26 +173,17 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   cursor: grabbing;
 }
 
-/* Icon visibility controls */
-.icon-draggable {
-  visibility: hidden;
-  opacity: 0;
-  transition: all 0.2s ease;
-  pointer-events: none;
-}
-
 .ativos_main-list .w-dyn-item:hover .icon-draggable,
 .w-dyn-item.ativos-dragging .icon-draggable {
   visibility: visible;
   opacity: 1;
 }
 
-/* Items in drop area should never show drag icons */
 .ativos_main_drop_area .icon-draggable {
   display: none !important;
 }
 
-/* Header elements should not be draggable */
+/* Header elements */
 .drop_header_are-wrapper,
 .ativos_counter-wrapper,
 .ativos_clean-button {
@@ -186,35 +192,16 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   user-select: auto;
 }
 
-/* Clean button styles */
+/* Clean button */
 .ativos_clean-button {
-  transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.ativos_clean-button:hover {
-  opacity: 0.7;
-  transform: translateY(-1px);
-}
-
-/* Animation for items returning to source */
-.w-dyn-item.returning-to-source {
-  transition: all 0.3s ease;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Animation for items being removed */
-.w-dyn-item.being-removed {
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* Mobile responsive */
+/* Mobile responsive - ajustado para o layout flex */
 @media (max-width: 767px) {
-  .w-dyn-item {
-    margin-bottom: 12px;
+  .ativos_main_drop_area {
+    gap: 8px; /* Gap menor no mobile */
+    padding: 12px; /* Padding menor */
   }
 
   .drop_ativos_area-wrapper {
@@ -223,12 +210,12 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
     min-height: 400px;
   }
 
+  /* Minimal effects on mobile for better performance */
   .ativos-chosen {
-    transform: scale(1.05);
+    transform: scale(1.01);
   }
 }
 
-/* Tablet responsive */
 @media (min-width: 768px) and (max-width: 991px) {
   .drop_ativos_area-wrapper {
     padding-left: 24px;
@@ -237,15 +224,14 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   }
 }
 
-/* Desktop styles */
 @media (min-width: 992px) {
   .drop_ativos_area-wrapper {
     min-height: 475px;
   }
 
   .w-dyn-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: transform 0.1s ease;
   }
 }
 
@@ -253,7 +239,6 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
 @media (prefers-contrast: high) {
   .ativos-ghost {
     border-color: #000 !important;
-    background: rgba(0, 0, 0, 0.1) !important;
   }
 
   .ativos-chosen {
@@ -266,16 +251,11 @@ body.ativos-sorting .w-dyn-item:not(.ativos-chosen):not(.ativos-ghost) {
   .ativos_main-list,
   .w-dyn-item,
   .drop_ativos_area-wrapper,
-  .counter_ativos {
-    transition: none;
-  }
-
-  .ativos-chosen {
-    transform: none;
-  }
-
-  .w-dyn-item:hover {
-    transform: none;
+  .counter_ativos,
+  .icon-draggable,
+  .ativos-handle {
+    transition: none !important;
+    animation: none !important;
   }
 }
 

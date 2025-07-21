@@ -1,7 +1,7 @@
 /**
  * Webflow Integration for Ativos Module
  *
- * Handles Webflow-specific initialization and integration with Enhanced GSAP animations
+ * Handles Webflow-specific initialization with lightweight implementation
  */
 
 import Sortable from 'sortablejs';

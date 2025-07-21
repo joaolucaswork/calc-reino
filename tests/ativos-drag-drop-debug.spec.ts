@@ -78,46 +78,29 @@ test.describe('Ativos Drag and Drop Debug', () => {
           window.testDragDrop = function() {
             console.log('Iniciando sistema de drag and drop...');
             
-            // Configurar sortable na lista de origem
+            // Configurar sortable na lista de origem com shared groups
             const sourceList = document.querySelector('.ativos_main-list');
             if (sourceList) {
               new Sortable(sourceList, {
-                group: {
-                  name: 'ativos',
-                  pull: 'clone',
-                  put: false
-                },
+                group: 'shared', // Shared groups - items move between containers
                 sort: false,
+                filter: '.drop_header_are-wrapper, .ativos_counter-wrapper, .ativos_clean-button, #adicionarAtivo',
                 onEnd: function(evt) {
-                  const isValidDrop = evt.to && (
-                    evt.to.matches('.ativos_main_drop_area') || 
-                    evt.to.matches('.drop_ativos_area-wrapper')
-                  );
-                  
-                  if (isValidDrop && evt.item) {
-                    console.log('Drop válido detectado');
-                    evt.item.style.display = 'none';
-                    evt.item.setAttribute('data-original-hidden', 'true');
-                    
-                    // Se foi dropado na área intermediária, mover para a área final
-                    if (evt.to.matches('.drop_ativos_area-wrapper')) {
-                      setTimeout(() => {
-                        const mainDropArea = document.querySelector('.ativos_main_drop_area');
-                        if (mainDropArea && evt.clone) {
-                          mainDropArea.appendChild(evt.clone);
-                        }
-                      }, 100);
+                  // Ensure item is properly styled after move
+                  if (evt.item) {
+                    evt.item.style.opacity = '';
+                    evt.item.style.transform = '';
+                    evt.item.style.display = '';
+                  }
+
+                  // Update counter
+                  setTimeout(() => {
+                    const dropAreaItems = document.querySelectorAll('.ativos_main_drop_area .w-dyn-item');
+                    const counter = document.querySelector('.ativos_counter');
+                    if (counter) {
+                      counter.textContent = 'Contador: ' + dropAreaItems.length;
                     }
-                    
-                    // Atualizar contador
-                    setTimeout(() => {
-                      const dropAreaItems = document.querySelectorAll('.ativos_main_drop_area .w-dyn-item');
-                      const counter = document.querySelector('.ativos_counter');
-                      if (counter) {
-                        counter.textContent = 'Contador: ' + dropAreaItems.length;
-                      }
-                    }, 200);
-                  } else if (evt.clone) {
+                  }, 50);
                     evt.clone.remove();
                   }
                 }
@@ -152,15 +135,11 @@ test.describe('Ativos Drag and Drop Debug', () => {
               });
             }
             
-            // Configurar área de drop final
+            // Configurar área de drop final com shared groups
             const mainDropArea = document.querySelector('.ativos_main_drop_area');
             if (mainDropArea) {
               new Sortable(mainDropArea, {
-                group: {
-                  name: 'ativos',
-                  pull: false,
-                  put: true
-                }
+                group: 'shared' // Same shared group as source
               });
             }
             

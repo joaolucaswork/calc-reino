@@ -16,6 +16,10 @@ export const DEFAULT_SORTABLE_CONFIG: SortableConfig = {
   fallbackClass: 'ativos-fallback',
   fallbackOnBody: true,
   swapThreshold: 0.65,
+  // Enhanced options for better clone behavior
+  removeCloneOnHide: true, // Remove clone when not showing
+  dragoverBubble: false, // Prevent event bubbling issues
+  emptyInsertThreshold: 5, // Better empty area detection
 };
 
 /**

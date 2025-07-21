@@ -1,92 +1,86 @@
 /**
- * Sortable Manager
+ * Clean Drag-Drop Manager
  *
- * Manages drag and drop functionality using SortableJS
+ * Simplified and reliable drag-and-drop system using SortableJS shared groups
+ * - No cloning complications
+ * - No visual duplication issues
+ * - Clean item movement between containers
+ * - Webflow CMS compatible
  */
 
 import Sortable from 'sortablejs';
 
 import { DEFAULT_ATIVOS_OPTIONS } from './config';
 import { AtivosCounter } from './counter';
-import type { AtivosManagerOptions, SortableEvent } from './types';
+import type { AtivosManagerOptions } from './types';
 
 export class AtivosManager {
   private static instances = new Map<HTMLElement, Sortable>();
   private static options: AtivosManagerOptions = DEFAULT_ATIVOS_OPTIONS;
   private static originalItemsData = new Map<HTMLElement, { parent: HTMLElement; index: number }>();
+  private static isInitialized = false;
 
   /**
-   * Initialize the Ativos Manager
+   * Initialize the clean drag-drop system
    */
   public static initialize(customOptions?: Partial<AtivosManagerOptions>): void {
+    if (this.isInitialized) {
+      return;
+    }
+
     this.options = { ...DEFAULT_ATIVOS_OPTIONS, ...customOptions };
-    this.initializeAllContainers();
-    this.setupEventListeners();
+    this.initializeContainers();
     this.setupCleanButton();
+    this.setupAddAssetButton();
+    this.setupAddAssetInput();
+    this.setupDynamicContainerHandling();
+
+    // Set initial state for source containers and load persisted assets
+    setTimeout(() => {
+      this.updateSourceContainerState();
+      this.loadPersistedAssets();
+    }, 100);
+
+    this.isInitialized = true;
   }
 
   /**
-   * Initialize sortable on all containers
+   * Initialize all drag-drop containers with shared groups
    */
-  private static initializeAllContainers(): void {
-    // Only initialize sortable on .ativos_main-list (source containers)
+  private static initializeContainers(): void {
+    // Initialize source containers (where items start)
     const sourceContainers = document.querySelectorAll<HTMLElement>('.ativos_main-list');
     sourceContainers.forEach((container) => {
       this.initializeSourceContainer(container);
     });
 
-    // Initialize drop area to accept items but not allow dragging from it
-    const mainDropAreas = document.querySelectorAll<HTMLElement>('.ativos_main_drop_area');
-    mainDropAreas.forEach((container) => {
+    // Initialize drop areas (where items are moved to)
+    const dropAreas = document.querySelectorAll<HTMLElement>('.ativos_main_drop_area');
+    dropAreas.forEach((container) => {
       this.initializeDropArea(container);
     });
   }
 
   /**
-   * Initialize sortable on source containers (.ativos_main-list)
+   * Initialize source container with clean shared groups configuration
    */
   private static initializeSourceContainer(container: HTMLElement): Sortable | null {
     if (!container || this.instances.has(container)) {
       return this.instances.get(container) || null;
     }
 
-    // Save original items data for clean functionality
+    // Save original positions for clean functionality
     this.saveOriginalItemsData(container);
 
     const sortable = new Sortable(container, {
-      ...this.options.sortableConfig,
-      group: {
-        name: 'ativos',
-        pull: 'clone', // Clone items when dragging (keep original)
-        put: false, // Don't allow items to be put back here
-      },
-      sort: false, // Don't allow sorting within source container
-      filter: '.drop_header_are-wrapper, .ativos_counter-wrapper, .ativos_clean-button', // Exclude headers and buttons
-      onStart: (evt: Sortable.SortableEvent) => {
-        this.handleSortStart(evt);
-      },
-      onEnd: (evt: Sortable.SortableEvent) => {
-        this.handleSortEnd(evt);
+      group: 'shared', // Simple shared group - items move between containers
+      animation: 150,
+      sort: false, // Don't allow reordering within source
+      filter:
+        '.drop_header_are-wrapper, .ativos_counter-wrapper, .ativos_clean-button, #adicionarAtivo',
 
-        // Only hide the original if the item was actually dropped in a valid target
-        const isValidDrop =
-          evt.to &&
-          evt.from !== evt.to && // Item moved to different container
-          evt.to.matches('.ativos_main_drop_area');
-
-        if (isValidDrop && evt.item && evt.oldIndex !== undefined) {
-          // Hide the original item only when successfully dropped
-          const originalItem = evt.from.children[evt.oldIndex] as HTMLElement;
-          if (originalItem) {
-            originalItem.style.display = 'none';
-            originalItem.setAttribute('data-original-hidden', 'true');
-          }
-        }
-
-        if (this.options.onSort) {
-          this.options.onSort(this.createSortableEvent(evt));
-        }
-      },
+      onStart: this.handleDragStart,
+      onEnd: this.handleDragEnd,
     });
 
     this.instances.set(container, sortable);
@@ -94,7 +88,7 @@ export class AtivosManager {
   }
 
   /**
-   * Initialize drop area (.ativos_main_drop_area)
+   * Initialize drop area with clean shared groups configuration
    */
   private static initializeDropArea(container: HTMLElement): Sortable | null {
     if (!container || this.instances.has(container)) {
@@ -102,24 +96,11 @@ export class AtivosManager {
     }
 
     const sortable = new Sortable(container, {
-      ...this.options.sortableConfig,
-      group: {
-        name: 'ativos',
-        pull: false, // Don't allow dragging from drop area
-        put: true, // Allow dropping items here
-      },
-      onAdd: (evt: Sortable.SortableEvent) => {
-        this.handleAdd(evt);
-        if (this.options.onAdd) {
-          this.options.onAdd(this.createSortableEvent(evt));
-        }
-      },
-      onRemove: (evt: Sortable.SortableEvent) => {
-        this.handleRemove(evt);
-        if (this.options.onRemove) {
-          this.options.onRemove(this.createSortableEvent(evt));
-        }
-      },
+      group: 'shared', // Same shared group as source containers
+      animation: 150,
+
+      onAdd: this.handleItemAdded,
+      onRemove: this.handleItemRemoved,
     });
 
     this.instances.set(container, sortable);
@@ -147,97 +128,134 @@ export class AtivosManager {
   }
 
   /**
-   * Handle sort start
+   * Handle drag start - clean visual feedback
    */
-  private static handleSortStart(evt: Sortable.SortableEvent): void {
+  private static handleDragStart = (evt: Sortable.SortableEvent): void => {
     const { item } = evt;
 
-    // Add dragging class to item
+    // Add visual feedback classes
     item.classList.add('ativos-dragging');
-
-    // Add visual feedback to drop zones
     document.body.classList.add('ativos-sorting');
-  }
+  };
 
   /**
-   * Handle sort end
+   * Handle drag end - clean up and ensure proper styling
    */
-  private static handleSortEnd(evt: Sortable.SortableEvent): void {
+  private static handleDragEnd = (evt: Sortable.SortableEvent): void => {
     const { item } = evt;
 
-    // Remove dragging class from item
+    // Remove visual feedback classes
     item.classList.remove('ativos-dragging');
-
-    // Remove visual feedback from drop zones
     document.body.classList.remove('ativos-sorting');
 
-    // Update counter only for items physically in main drop area
-    setTimeout(() => {
-      AtivosCounter.updateCounter();
-    }, 50);
+    // Ensure item is properly styled (no leftover inline styles)
+    item.style.opacity = '';
+    item.style.transform = '';
+    item.style.display = '';
 
-    // Dispatch custom sort event
-    this.dispatchSortEvent(evt);
-  }
+    // Update counter after any movement
+    setTimeout(() => AtivosCounter.updateCounter(), 50);
+  };
 
   /**
-   * Handle item add
+   * Handle item added to drop area
    */
-  private static handleAdd(evt: Sortable.SortableEvent): void {
-    // Update counter
+  private static handleItemAdded = (): void => {
+    // Update counter immediately
     AtivosCounter.updateCounter();
 
-    // Dispatch custom add event
-    this.dispatchAddEvent(evt);
-  }
+    // Update source container state (item was removed from source)
+    this.updateSourceContainerState();
+  };
 
   /**
-   * Handle item remove
+   * Handle item removed from drop area
    */
-  private static handleRemove(evt: Sortable.SortableEvent): void {
-    // Update counter
+  private static handleItemRemoved = (): void => {
+    // Update counter immediately
     AtivosCounter.updateCounter();
 
-    // Dispatch custom remove event
-    this.dispatchRemoveEvent(evt);
+    // Update source container state
+    this.updateSourceContainerState();
+  };
+
+  /**
+   * Ensure "Add New Asset" button remains at the end of source containers
+   */
+  private static ensureAddButtonPosition(): void {
+    const sourceContainers = document.querySelectorAll<HTMLElement>('.ativos_main-list');
+
+    sourceContainers.forEach((container) => {
+      const addButton = container.querySelector('#adicionarAtivo');
+      if (addButton && addButton.parentElement === container) {
+        // Move button to the end if it's not already there
+        const lastChild = container.lastElementChild;
+        if (lastChild !== addButton) {
+          container.appendChild(addButton);
+        }
+      }
+    });
   }
 
   /**
-   * Create a normalized sortable event
+   * Update the visual state of source containers based on their content
    */
-  private static createSortableEvent(evt: Sortable.SortableEvent): SortableEvent {
-    return {
-      oldIndex: evt.oldIndex ?? -1,
-      newIndex: evt.newIndex ?? -1,
-      item: evt.item,
-      from: evt.from,
-      to: evt.to,
-    };
+  private static updateSourceContainerState(): void {
+    const sourceContainers = document.querySelectorAll<HTMLElement>('.ativos_main-list');
+
+    sourceContainers.forEach((container) => {
+      // Count draggable items (exclude filtered elements)
+      const draggableItems = container.querySelectorAll('.w-dyn-item, [data-ativo-item]');
+      const filteredItems = container.querySelectorAll(
+        '.drop_header_are-wrapper, .ativos_counter-wrapper, .ativos_clean-button, #adicionarAtivo'
+      );
+
+      const actualDraggableCount = draggableItems.length - filteredItems.length;
+      const isEmpty = actualDraggableCount <= 0;
+
+      // Find the .texto-info element within this container or its parent
+      const textoInfo =
+        container.querySelector('.texto-info') ||
+        container.parentElement?.querySelector('.texto-info');
+
+      if (textoInfo) {
+        if (isEmpty) {
+          // Add 'ativo' class when container is empty
+          textoInfo.classList.add('ativo');
+        } else {
+          // Remove 'ativo' class when container has items
+          textoInfo.classList.remove('ativo');
+        }
+      }
+    });
   }
 
   /**
-   * Setup global event listeners
+   * Setup handling for dynamically added containers (Webflow compatibility)
    */
-  private static setupEventListeners(): void {
-    // Listen for dynamically added containers
+  private static setupDynamicContainerHandling(): void {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
 
-            // Check if the added element is a container
-            if (element.matches(this.options.containerSelector)) {
-              this.initializeSortable(element as HTMLElement);
+            // Check for new source containers
+            if (element.matches('.ativos_main-list')) {
+              this.initializeSourceContainer(element as HTMLElement);
             }
 
-            // Check if the added element contains containers
-            const containers = element.querySelectorAll<HTMLElement>(
-              this.options.containerSelector
-            );
-            containers.forEach((container) => {
-              this.initializeSortable(container);
-            });
+            // Check for new drop areas
+            if (element.matches('.ativos_main_drop_area')) {
+              this.initializeDropArea(element as HTMLElement);
+            }
+
+            // Check for containers within added elements
+            const sourceContainers = element.querySelectorAll<HTMLElement>('.ativos_main-list');
+            sourceContainers.forEach((container) => this.initializeSourceContainer(container));
+
+            const dropAreas = element.querySelectorAll<HTMLElement>('.ativos_main_drop_area');
+            dropAreas.forEach((container) => this.initializeDropArea(container));
           }
         });
       });
@@ -247,42 +265,6 @@ export class AtivosManager {
       childList: true,
       subtree: true,
     });
-  }
-
-  /**
-   * Dispatch custom sort event
-   */
-  private static dispatchSortEvent(evt: Sortable.SortableEvent): void {
-    const customEvent = new CustomEvent('ativosSort', {
-      detail: this.createSortableEvent(evt),
-      bubbles: true,
-    });
-
-    evt.item.dispatchEvent(customEvent);
-  }
-
-  /**
-   * Dispatch custom add event
-   */
-  private static dispatchAddEvent(evt: Sortable.SortableEvent): void {
-    const customEvent = new CustomEvent('ativosAdd', {
-      detail: this.createSortableEvent(evt),
-      bubbles: true,
-    });
-
-    evt.to.dispatchEvent(customEvent);
-  }
-
-  /**
-   * Dispatch custom remove event
-   */
-  private static dispatchRemoveEvent(evt: Sortable.SortableEvent): void {
-    const customEvent = new CustomEvent('ativosRemove', {
-      detail: this.createSortableEvent(evt),
-      bubbles: true,
-    });
-
-    evt.from.dispatchEvent(customEvent);
   }
 
   /**
@@ -321,16 +303,24 @@ export class AtivosManager {
   }
 
   /**
-   * Save original items data for clean functionality
+   * Save original items data with exact positions for clean functionality
    */
   private static saveOriginalItemsData(container: HTMLElement): void {
     const items = container.querySelectorAll<HTMLElement>('.w-dyn-item, [data-ativo-item]');
 
     items.forEach((item, index) => {
-      this.originalItemsData.set(item, {
-        parent: container,
-        index,
-      });
+      // Only save original CMS items, not custom assets
+      if (!item.hasAttribute('data-new-asset')) {
+        // Store both parent and exact index position
+        this.originalItemsData.set(item, {
+          parent: container,
+          index,
+        });
+
+        // Also store as data attributes for reliability
+        item.setAttribute('data-original-index', index.toString());
+        item.setAttribute('data-original-container', container.className);
+      }
     });
   }
 
@@ -349,51 +339,346 @@ export class AtivosManager {
   }
 
   /**
-   * Check if item is in a source container
+   * Setup "Add New Asset" button functionality (toggle visibility)
    */
-  private static isItemInSourceContainer(item: HTMLElement): boolean {
-    return !!item.closest('.ativos_main-list');
+  private static setupAddAssetButton(): void {
+    const addButtons = document.querySelectorAll('#adicionarAtivo');
+
+    addButtons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleAddAssetClick();
+      });
+    });
   }
 
   /**
-   * Clean all items and return to original positions
+   * Setup "Add New Asset" input functionality (create assets)
    */
-  public static cleanAllItems(): void {
-    // Show all hidden original items
-    const hiddenItems = document.querySelectorAll('[data-original-hidden="true"]');
+  private static setupAddAssetInput(): void {
+    const addInputs = document.querySelectorAll('#adicionarNAtivo');
 
-    hiddenItems.forEach((item) => {
-      const htmlItem = item as HTMLElement;
-      htmlItem.style.display = '';
-      htmlItem.removeAttribute('data-original-hidden');
-    });
-
-    // Remove all items from drop area
-    const dropArea = document.querySelector('.ativos_main_drop_area');
-    if (dropArea) {
-      const dropAreaItems = dropArea.querySelectorAll('.w-dyn-item, [data-ativo-item]');
-
-      dropAreaItems.forEach((item, index) => {
-        const htmlItem = item as HTMLElement;
-
-        setTimeout(() => {
-          if (htmlItem.parentElement) {
-            htmlItem.parentElement.removeChild(htmlItem);
-          }
-
-          // Update counter after all items are removed
-          if (index === dropAreaItems.length - 1) {
-            setTimeout(() => {
-              AtivosCounter.updateCounter();
-            }, 50);
-          }
-        }, 100);
+    addInputs.forEach((input) => {
+      input.addEventListener('keydown', (e) => {
+        const keyEvent = e as KeyboardEvent;
+        if (keyEvent.key === 'Enter') {
+          e.preventDefault();
+          this.handleAddAssetInput(input as HTMLInputElement);
+        }
       });
+    });
+  }
+
+  /**
+   * Toggle visibility of add asset input (consolidated function)
+   */
+  private static toggleAddAssetInput(forceHide: boolean = false): void {
+    const addAtivoManual = document.querySelector('.add_ativo_manual');
+    if (addAtivoManual) {
+      if (forceHide) {
+        addAtivoManual.classList.add('desativado');
+      } else {
+        // Toggle behavior
+        if (addAtivoManual.classList.contains('desativado')) {
+          addAtivoManual.classList.remove('desativado');
+        } else {
+          addAtivoManual.classList.add('desativado');
+        }
+      }
+    }
+  }
+
+  /**
+   * Handle click on "Add New Asset" button (toggle visibility only)
+   */
+  private static handleAddAssetClick(): void {
+    this.toggleAddAssetInput();
+  }
+
+  /**
+   * Handle input on "Add New Asset" input field (create assets)
+   */
+  private static handleAddAssetInput(input: HTMLInputElement): void {
+    if (input && input.value.trim()) {
+      this.createNewAsset(input.value.trim());
+      input.value = ''; // Clear input after creation
+
+      // Hide the input after creating asset using consolidated function
+      this.toggleAddAssetInput(true); // forceHide = true
+    }
+  }
+
+  /**
+   * Create a new asset and add it to the drop area
+   */
+  private static createNewAsset(assetName: string): void {
+    console.error('DEBUG: Creating new asset:', assetName);
+
+    // Check if asset with same name already exists in DOM
+    const existingAsset = document.querySelector(`[data-asset-name="${assetName}"]`);
+    if (existingAsset) {
+      console.error(
+        'DEBUG: Asset with same name already exists in DOM, skipping creation:',
+        assetName
+      );
+      return;
     }
 
-    // Update counter immediately to 0
+    // Create new asset element
+    const newAsset = this.createAssetElement(assetName);
+
+    // Add to source container (not drop area) so it appears in the list immediately
+    const sourceContainer = document.querySelector('.ativos_main-list');
+    if (sourceContainer && newAsset) {
+      console.error('DEBUG: Adding asset to source container:', assetName);
+
+      // Add before the #adicionarAtivo button if it exists, otherwise append to end
+      const addButton = sourceContainer.querySelector('#adicionarAtivo');
+      if (addButton) {
+        sourceContainer.insertBefore(newAsset, addButton);
+      } else {
+        sourceContainer.appendChild(newAsset);
+      }
+
+      // Save to localStorage for persistence
+      this.saveNewAssetToStorage(assetName);
+
+      // Update counter and container states
+      AtivosCounter.updateCounter();
+      this.updateSourceContainerState();
+    } else {
+      console.error('DEBUG: Source container not found or asset creation failed');
+    }
+  }
+
+  /**
+   * Create a new asset DOM element using the existing #pillAtivo template
+   */
+  private static createAssetElement(assetName: string): HTMLElement | null {
+    // Find the existing #pillAtivo template element
+    const pillAtivoTemplate = document.querySelector('#pillAtivo');
+    if (!pillAtivoTemplate) {
+      console.error('DEBUG: #pillAtivo template not found, falling back to custom structure');
+      return this.createFallbackAssetElement(assetName);
+    }
+
+    // Clone the template element
+    const assetElement = pillAtivoTemplate.cloneNode(true) as HTMLElement;
+
+    // Remove the ID to avoid duplicates and add necessary attributes
+    assetElement.removeAttribute('id');
+    assetElement.classList.add('w-dyn-item');
+    assetElement.setAttribute('data-ativo-item', 'true');
+    assetElement.setAttribute('data-new-asset', 'true');
+    assetElement.setAttribute('data-asset-name', assetName);
+
+    // Find and update the text block inside the cloned element with the asset name
+    const textBlock = assetElement.querySelector('[class*="text"], .text-block, span, div');
+    if (textBlock) {
+      textBlock.textContent = assetName;
+      console.error('DEBUG: Updated text block with asset name:', assetName);
+    } else {
+      console.error(
+        'DEBUG: Text block not found in #pillAtivo, asset name may not display correctly'
+      );
+    }
+
+    return assetElement;
+  }
+
+  /**
+   * Fallback method to create asset element if #pillAtivo template is not found
+   */
+  private static createFallbackAssetElement(assetName: string): HTMLElement | null {
+    const assetElement = document.createElement('div');
+    assetElement.className = 'w-dyn-item new-asset-item';
+    assetElement.setAttribute('data-ativo-item', 'true');
+    assetElement.setAttribute('data-new-asset', 'true');
+    assetElement.setAttribute('data-asset-name', assetName);
+
+    assetElement.innerHTML = `
+      <div class="asset-content">
+        <span class="asset-name">${assetName}</span>
+      </div>
+    `;
+
+    return assetElement;
+  }
+
+  /**
+   * Save new asset to localStorage for persistence
+   */
+  private static saveNewAssetToStorage(assetName: string): void {
+    try {
+      const existingAssets = this.getStoredAssets();
+
+      // Check if asset with same name already exists
+      const isDuplicate = existingAssets.some((asset) => asset.name === assetName);
+      if (isDuplicate) {
+        console.error('DEBUG: Asset with name already exists, skipping save:', assetName);
+        return;
+      }
+
+      const newAsset = {
+        id: Date.now().toString(),
+        name: assetName,
+        type: 'custom',
+        createdAt: new Date().toISOString(),
+      };
+
+      existingAssets.push(newAsset);
+      localStorage.setItem('ativos_custom_assets', JSON.stringify(existingAssets));
+      console.error('DEBUG: Asset saved to localStorage:', assetName);
+    } catch (error) {
+      console.error('Failed to save asset to localStorage:', error);
+    }
+  }
+
+  /**
+   * Get stored assets from localStorage
+   */
+  private static getStoredAssets(): Array<{
+    id: string;
+    name: string;
+    type: string;
+    createdAt: string;
+  }> {
+    try {
+      const stored = localStorage.getItem('ativos_custom_assets');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Failed to load assets from localStorage:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Load persisted assets from localStorage and add them to source containers
+   */
+  private static loadPersistedAssets(): void {
+    console.error('DEBUG: Loading persisted assets');
+    const storedAssets = this.getStoredAssets();
+    const sourceContainer = document.querySelector('.ativos_main-list');
+
+    console.error('DEBUG: Found stored assets:', storedAssets.length);
+    if (!sourceContainer || storedAssets.length === 0) return;
+
+    storedAssets.forEach((assetData) => {
+      // Check if asset already exists in DOM to prevent duplicates
+      const existingAsset = document.querySelector(`[data-asset-name="${assetData.name}"]`);
+      if (existingAsset) {
+        console.error('DEBUG: Asset already exists in DOM, skipping load:', assetData.name);
+        return;
+      }
+
+      console.error('DEBUG: Loading asset:', assetData.name);
+      const assetElement = this.createAssetElement(assetData.name);
+      if (assetElement) {
+        // Add to source container before the #adicionarAtivo button
+        const addButton = sourceContainer.querySelector('#adicionarAtivo');
+        if (addButton) {
+          sourceContainer.insertBefore(assetElement, addButton);
+        } else {
+          sourceContainer.appendChild(assetElement);
+        }
+      }
+    });
+
+    // Update container state after loading assets
+    this.updateSourceContainerState();
+  }
+
+  /**
+   * Clean all items - restore items to their exact original positions
+   */
+  public static cleanAllItems(): void {
+    // Get all items currently in drop areas
+    const dropArea = document.querySelector('.ativos_main_drop_area');
+    if (!dropArea) return;
+
+    const dropAreaItems = Array.from(
+      dropArea.querySelectorAll<HTMLElement>('.w-dyn-item, [data-ativo-item]')
+    );
+
+    // Group items by their original containers for batch processing
+    const itemsByContainer = new Map<
+      HTMLElement,
+      Array<{ item: HTMLElement; originalIndex: number }>
+    >();
+
+    dropAreaItems.forEach((item) => {
+      // Check if this is a new custom asset
+      if (item.hasAttribute('data-new-asset')) {
+        // Move new assets to the first available source container
+        const sourceContainer = document.querySelector('.ativos_main-list');
+        if (sourceContainer) {
+          // Add to container but before the #adicionarAtivo button
+          const addButton = sourceContainer.querySelector('#adicionarAtivo');
+          if (addButton) {
+            sourceContainer.insertBefore(item, addButton);
+          } else {
+            sourceContainer.appendChild(item);
+          }
+        }
+      } else {
+        // Handle original assets with their saved positions
+        const originalData = this.originalItemsData.get(item);
+        if (originalData && originalData.parent) {
+          if (!itemsByContainer.has(originalData.parent)) {
+            itemsByContainer.set(originalData.parent, []);
+          }
+          itemsByContainer.get(originalData.parent)!.push({
+            item,
+            originalIndex: originalData.index,
+          });
+        }
+      }
+    });
+
+    // Restore items to their exact original positions
+    itemsByContainer.forEach((items, container) => {
+      // Sort items by their original index to restore proper order
+      items.sort((a, b) => a.originalIndex - b.originalIndex);
+
+      items.forEach(({ item, originalIndex }) => {
+        // Clean up any inline styles
+        item.style.opacity = '';
+        item.style.transform = '';
+        item.style.display = '';
+
+        // Insert item at its exact original position
+        const containerChildren = Array.from(container.children);
+        const targetIndex = originalIndex;
+
+        if (targetIndex >= containerChildren.length) {
+          // If original index is at the end, append
+          container.appendChild(item);
+        } else {
+          // Insert before the element currently at the target position
+          const referenceElement = containerChildren[targetIndex];
+          container.insertBefore(item, referenceElement);
+        }
+      });
+    });
+
+    // Handle items without original data (fallback)
+    dropAreaItems.forEach((item) => {
+      if (!this.originalItemsData.has(item)) {
+        const sourceContainer = document.querySelector('.ativos_main-list');
+        if (sourceContainer && item.parentElement === dropArea) {
+          item.style.opacity = '';
+          item.style.transform = '';
+          item.style.display = '';
+          sourceContainer.appendChild(item);
+        }
+      }
+    });
+
+    // Update counter and source container states after restoration
     setTimeout(() => {
       AtivosCounter.updateCounter();
-    }, 150);
+      this.updateSourceContainerState();
+      this.ensureAddButtonPosition(); // Ensure add button stays at the end
+    }, 50);
   }
 }
