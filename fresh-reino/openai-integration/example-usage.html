@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Asset Allocation - Example Usage</title>
+
+    <!-- Simulate Webflow styles -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #101010;
+            margin-bottom: 30px;
+        }
+
+        /* Main value input section */
+        .main-value-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .currency-input {
+            width: 300px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* Float component styles */
+        .componente-alocao-float {
+            background: white;
+            border: 1px solid #00000073;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .prompt-input-send-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .prompt-input {
+            flex: 1;
+            padding: 16px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f4f3f1;
+        }
+
+        .process-prompt {
+            padding: 16px 24px;
+            background-color: #101010;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .process-prompt:hover {
+            background-color: #2a2a2a;
+        }
+
+        /* Asset allocation section */
+        ._3-section-patrimonio-alocation {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .patrimonio_interactive_content-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .patrimonio_interactive_item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .ativo_alocated_top-wrapper {
+            margin-bottom: 15px;
+        }
+
+        .categoria-ativo {
+            font-weight: bold;
+            color: #101010;
+            margin-bottom: 5px;
+        }
+
+        .active-produto-item {
+            display: none;
+        }
+
+        .active-produto-item.active {
+            display: block;
+        }
+
+        .disabled-produto-item {
+            color: #666;
+        }
+
+        .patrimonio_value_input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .currency-input.individual {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+
+        .instructions ul {
+            margin: 10px 0;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .example-commands {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenAI Asset Allocation - Exemplo de Uso</h1>
+
+        <div class="instructions">
+            <h3>Instruções de Uso:</h3>
+            <ol>
+                <li>Primeiro, defina o valor total do seu patrimônio no campo abaixo</li>
+                <li>Digite um comando em linguagem natural no campo de alocação</li>
+                <li>Clique em "Alocar" ou pressione Enter</li>
+                <li>Na primeira vez, será solicitada sua chave API da OpenAI</li>
+            </ol>
+
+            <h3>Exemplos de Comandos:</h3>
+            <div class="example-commands">"Coloque 60% em renda fixa e 40% em ações"</div>
+            <div class="example-commands">"Quero 30% em FIIs, 20% em CDB e o resto em ações"</div>
+            <div class="example-commands">"Distribua igualmente entre ações, FIIs e renda fixa"</div>
+        </div>
+
+        <!-- Main value input -->
+        <div class="main-value-section">
+            <h3>Valor Total do Patrimônio</h3>
+            <input
+                id="currency"
+                placeholder="0,00"
+                data-currency="true"
+                is-main="true"
+                class="currency-input"
+                value="100000,00"
+            />
+        </div>
+
+        <!-- Float component with AI input -->
+        <div class="componente-alocao-float">
+            <h3>Alocação por IA</h3>
+            <p>Descreva como deseja alocar seu patrimônio:</p>
+            <div class="prompt-input-send-wrapper">
+                <input
+                    placeholder="Escreva como quer dividir seu patrimônio"
+                    class="prompt-input"
+                />
+                <button class="process-prompt">
+                    <div>Alocar</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Asset allocation section -->
+        <section class="_3-section-patrimonio-alocation">
+            <h3>Alocação de Ativos</h3>
+            <div class="patrimonio_interactive_content-wrapper">
+
+                <!-- Renda Fixa - CDB, LCI, LCA -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda Fixa</div>
+                        <div>CDB,LCI,LCA</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda Fixa - CRI, CRA, DEBENTURE -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda Fixa</div>
+                        <div>CRI,CRA, DEBENTURE</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda Fixa - Títulos públicos -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda Fixa</div>
+                        <div>Títulos públicos</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Fundo de investimento - Ações -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Fundo de investimento</div>
+                        <div>Ações</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Fundo de investimento - Liquidez -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Fundo de investimento</div>
+                        <div>Liquidez</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Fundo de investimento - Renda Fixa -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Fundo de investimento</div>
+                        <div>Renda Fixa</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda variável - Ações -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda variável</div>
+                        <div>Ações</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda variável - FII -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda variável</div>
+                        <div>FII</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda variável - ETF -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda variável</div>
+                        <div>ETF</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Renda variável - BDR -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Renda variável</div>
+                        <div>BDR</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Previdência privada -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Previdência privada</div>
+                        <div>PGBL/VGBL</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+                <!-- Outros investimentos -->
+                <div class="patrimonio_interactive_item">
+                    <div class="ativo_alocated_top-wrapper">
+                        <div class="categoria-ativo">Outros investimentos</div>
+                        <div>Outros</div>
+                    </div>
+                    <div class="active-produto-item">
+                        <div class="patrimonio_value_input">
+                            <span>R$</span>
+                            <input
+                                data-currency="true"
+                                placeholder="0,00"
+                                class="currency-input individual"
+                            />
+                        </div>
+                    </div>
+                    <div class="disabled-produto-item">
+                        <div>R$ 0,00 (0%)</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Minimal PatrimonySync mock for testing -->
+    <script>
+        // Mock PatrimonySync for testing
+        window.PatrimonySync = {
+            initialized: true,
+            getMainValue: function() {
+                const mainInput = document.querySelector('#currency');
+                const value = mainInput ? mainInput.value : '0';
+                return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+            },
+            getAllocations: function() {
+                const allocations = [];
+                document.querySelectorAll('.patrimonio_interactive_item').forEach(item => {
+                    const category = item.querySelector('.categoria-ativo')?.textContent.trim();
+                    const subcategory = item.querySelector('.ativo_alocated_top-wrapper > div:not(.categoria-ativo)')?.textContent.trim();
+                    const input = item.querySelector('.currency-input.individual');
+                    const value = input ? parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0 : 0;
+
+                    allocations.push({
+                        category: category,
+                        subcategory: subcategory,
+                        value: value,
+                        percentage: 0
+                    });
+                });
+                return allocations;
+            }
+        };
+
+        // Simple currency formatting
+        document.querySelectorAll('.currency-input').forEach(input => {
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value) {
+                    value = (parseInt(value) / 100).toFixed(2);
+                    e.target.value = value.replace('.', ',');
+                }
+            });
+        });
+
+        // Show active items for testing
+        document.querySelectorAll('.patrimonio_interactive_item').forEach(item => {
+            item.addEventListener('click', function() {
+                const activeDiv = this.querySelector('.active-produto-item');
+                const disabledDiv = this.querySelector('.disabled-produto-item');
+
+                if (activeDiv && disabledDiv) {
+                    activeDiv.classList.add('active');
+                    disabledDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- Load OpenAI integration -->
+    <script src="openai-allocation.js"></script>
+</body>
+</html>

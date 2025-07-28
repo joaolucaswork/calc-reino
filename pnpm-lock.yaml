@@ -17,6 +17,9 @@ importers:
       notyf:
         specifier: ^3.10.0
         version: 3.10.0
+      range-slider-element:
+        specifier: ^2.1.0
+        version: 2.1.0
       sortablejs:
         specifier: ^1.15.6
         version: 1.15.6
@@ -942,6 +945,9 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
+
+  range-slider-element@2.1.0:
+    resolution: {integrity: sha512-QaeNE4kEXn1ElowVXnF2B5ddPr8zz6lXsswSoIzfwGQCGsSLOdyZzHNInjqMcQJSuWuVYaNvVK4POAxzMmXOxw==}
 
   read-yaml-file@1.1.0:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
@@ -1969,6 +1975,8 @@ snapshots:
   punycode@2.3.1: {}
 
   queue-microtask@1.2.3: {}
+
+  range-slider-element@2.1.0: {}
 
   read-yaml-file@1.1.0:
     dependencies:

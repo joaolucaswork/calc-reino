@@ -56,6 +56,7 @@
     "@finsweet/ts-utils": "^0.40.0",
     "currency.js": "^2.0.4",
     "notyf": "^3.10.0",
+    "range-slider-element": "^2.1.0",
     "sortablejs": "^1.15.6"
   },
   "engines": {

@@ -9,7 +9,7 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 // Config entrypoint files
 const ENTRY_POINTS = [
   'src/index.ts', // Main entry point with all functionality
-  'src/currency/index.ts', // Currency module standalone
+  'src/modules/currency/index.ts', // Currency module standalone
 ];
 
 // Config dev serving
